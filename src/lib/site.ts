@@ -73,6 +73,22 @@ export function productEnquiryMessage(productName: string): string {
   return `Hi ${site.name}, I would like to enquire about "${productName}". Please share pricing and availability.`;
 }
 
+/**
+ * Prefilled enquiry for a hazard-led solution page.
+ *
+ * Deliberately opens on the site rather than the product: someone arriving via
+ * "Confined Space Entry & Rescue" is describing a job, not ordering a part,
+ * and the reply is more useful if the first message says so.
+ */
+export function solutionEnquiryMessage(solutionName: string): string {
+  return `Hi ${site.name}, I need help with ${solutionName}. Here is our site and requirement: `;
+}
+
+/** Prefilled enquiry from a blog article, so the context is not lost. */
+export function articleEnquiryMessage(articleTitle: string): string {
+  return `Hi ${site.name}, I was reading "${articleTitle}" and would like advice on choosing the right equipment for our site.`;
+}
+
 export const GENERAL_ENQUIRY_MESSAGE = `Hi ${site.name}, I would like to enquire about your safety products.`;
 
 /** Google Maps embed + directions for the Anjar location. */

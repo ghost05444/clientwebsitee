@@ -2,6 +2,7 @@ import { Link } from "./Link";
 import { Logo } from "./Logo";
 import { WhatsAppIcon } from "./Header";
 import { getMainCategories } from "@/lib/catalog";
+import { SOLUTION_NAV } from "@/data/solution-nav";
 import {
   site,
   addressLines,
@@ -78,12 +79,12 @@ export function Footer() {
           </div>
 
           {/* Category columns */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-4">
             <h2 className="font-display text-sm font-bold uppercase tracking-[0.14em] text-white">
               Product Categories
             </h2>
 
-            <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2">
+            <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               {categories.map((cat) => (
                 <li key={cat.slug}>
                   <Link
@@ -98,6 +99,26 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Solutions */}
+          <div className="lg:col-span-2">
+            <h2 className="font-display text-sm font-bold uppercase tracking-[0.14em] text-white">
+              Solutions
+            </h2>
+
+            <ul className="mt-5 space-y-0.5">
+              {SOLUTION_NAV.map((solution) => (
+                <li key={solution.slug}>
+                  <Link
+                    href={`/solutions/${solution.slug}`}
+                    className="flex min-h-10 items-center text-sm leading-snug text-ink-400 transition-colors hover:text-white"
+                  >
+                    {solution.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Company links */}
           <div className="lg:col-span-2">
             <h2 className="font-display text-sm font-bold uppercase tracking-[0.14em] text-white">
@@ -106,6 +127,9 @@ export function Footer() {
 
             <ul className="mt-5 space-y-0.5">
               {[
+                { label: "Services", href: "/services" },
+                { label: "Standards & Compliance", href: "/standards" },
+                { label: "Safety Notes", href: "/blog" },
                 { label: "About Us", href: "/about" },
                 { label: "All Products", href: "/products" },
                 { label: "Contact", href: "/contact" },
@@ -114,7 +138,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="flex min-h-10 items-center text-sm text-ink-400 transition-colors hover:text-white"
+                    className="flex min-h-10 items-center text-sm leading-snug text-ink-400 transition-colors hover:text-white"
                   >
                     {link.label}
                   </Link>

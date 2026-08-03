@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
 import { SearchDialog } from "./SearchDialog";
 import { getMainCategories, type Category } from "@/lib/catalog";
+// Nav-only projection of the solutions — importing `@/lib/solutions` here
+// would pull every intro, hazard list and FAQ into the client bundle.
+import { SOLUTION_NAV } from "@/data/solution-nav";
 import {
   site,
   telHref,
@@ -15,17 +18,33 @@ import {
 
 const mainCategories = getMainCategories();
 
-const NAV = [
+/**
+ * `menu` names the dropdown a row owns, if any.
+ *
+ * `xlOnly` keeps About out of the bar at `lg`, where seven rows plus the
+ * search field and two buttons overflow. It is still reachable at `lg` from
+ * the drawer and the footer, and returns to the bar at `xl`.
+ */
+const NAV: {
+  label: string;
+  href: string;
+  menu?: "products" | "solutions";
+  xlOnly?: boolean;
+}[] = [
   { label: "Home", href: "/" },
-  { label: "Products", href: "/products", mega: true },
-  { label: "About", href: "/about" },
+  { label: "Products", href: "/products", menu: "products" },
+  { label: "Solutions", href: "/solutions", menu: "solutions" },
+  { label: "Services", href: "/services" },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about", xlOnly: true },
   { label: "Contact", href: "/contact" },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
+  /** Which dropdown is open, if any — only ever one at a time. */
+  const [openMenu, setOpenMenu] = useState<"products" | "solutions" | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -67,7 +86,7 @@ export function Header() {
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setDrawerOpen(false);
-    setMegaOpen(false);
+    setOpenMenu(null);
   }
 
   // Lock body scroll behind the mobile drawer.
@@ -82,7 +101,7 @@ export function Header() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDrawerOpen(false);
-        setMegaOpen(false);
+        setOpenMenu(null);
       }
       // Cmd/Ctrl-K opens search, the convention users expect.
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -94,14 +113,14 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const openMega = () => {
+  const openMenuNow = (menu: "products" | "solutions") => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    setMegaOpen(true);
+    setOpenMenu(menu);
   };
   // Small grace period so the pointer can cross the gap into the panel.
-  const scheduleCloseMega = () => {
+  const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setMegaOpen(false), 140);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), 140);
   };
 
   const isActive = (href: string) =>
@@ -158,18 +177,20 @@ export function Header() {
               aria-label="Main navigation"
             >
               {NAV.map((item) =>
-                item.mega ? (
+                item.menu ? (
                   <div
                     key={item.href}
-                    onMouseEnter={openMega}
-                    onMouseLeave={scheduleCloseMega}
+                    onMouseEnter={() => openMenuNow(item.menu!)}
+                    onMouseLeave={scheduleClose}
                   >
                     <Link
                       href={item.href}
-                      aria-expanded={megaOpen}
+                      aria-expanded={openMenu === item.menu}
                       aria-haspopup="true"
-                      onFocus={openMega}
-                      className={`flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold transition-colors ${
+                      // Opening on focus is what makes the panel reachable by
+                      // keyboard — there is no hover event to rely on.
+                      onFocus={() => openMenuNow(item.menu!)}
+                      className={`flex h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition-colors xl:px-3.5 ${
                         isActive(item.href)
                           ? "text-brand-600"
                           : "text-ink-700 hover:bg-ink-100 hover:text-ink-900"
@@ -179,7 +200,7 @@ export function Header() {
                       <svg
                         viewBox="0 0 20 20"
                         className={`h-4 w-4 transition-transform duration-200 ${
-                          megaOpen ? "rotate-180" : ""
+                          openMenu === item.menu ? "rotate-180" : ""
                         }`}
                         fill="currentColor"
                         aria-hidden="true"
@@ -196,7 +217,13 @@ export function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex h-11 items-center rounded-lg px-3.5 text-sm font-semibold transition-colors ${
+                    // Focusing a plain row must dismiss an open panel, or
+                    // tabbing past Products leaves the mega menu covering the
+                    // row that now has focus.
+                    onFocus={scheduleClose}
+                    className={`h-11 items-center rounded-lg px-3 text-sm font-semibold transition-colors xl:px-3.5 ${
+                      item.xlOnly ? "hidden xl:flex" : "flex"
+                    } ${
                       isActive(item.href)
                         ? "text-brand-600"
                         : "text-ink-700 hover:bg-ink-100 hover:text-ink-900"
@@ -287,11 +314,11 @@ export function Header() {
           </div>
         </div>
 
-        {/* ---------------- Desktop mega menu ---------------- */}
-        {megaOpen && (
+        {/* ---------------- Desktop products mega menu ---------------- */}
+        {openMenu === "products" && (
           <div
-            onMouseEnter={openMega}
-            onMouseLeave={scheduleCloseMega}
+            onMouseEnter={() => openMenuNow("products")}
+            onMouseLeave={scheduleClose}
             className="absolute inset-x-0 top-full hidden border-b border-ink-200 bg-white shadow-xl lg:block"
           >
             <div className="container-page py-7">
@@ -312,6 +339,64 @@ export function Header() {
                     className="btn mt-4 w-full bg-brand-600 text-white hover:bg-brand-700"
                   >
                     Request a quote
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Desktop solutions menu ---------------- */}
+        {openMenu === "solutions" && (
+          <div
+            onMouseEnter={() => openMenuNow("solutions")}
+            onMouseLeave={scheduleClose}
+            className="absolute inset-x-0 top-full hidden border-b border-ink-200 bg-white shadow-xl lg:block"
+          >
+            <div className="container-page py-7">
+              <div className="grid gap-x-8 gap-y-1 lg:grid-cols-4">
+                <div className="lg:col-span-3">
+                  <p className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ink-400">
+                    By hazard
+                  </p>
+
+                  <ul className="mt-3 grid gap-x-6 gap-y-0.5 sm:grid-cols-2">
+                    {SOLUTION_NAV.map((solution) => (
+                      <li key={solution.slug}>
+                        <Link
+                          href={`/solutions/${solution.slug}`}
+                          className="group block rounded-lg px-3 py-2.5 transition-colors hover:bg-ink-50"
+                        >
+                          <span className="block font-display text-sm font-bold text-ink-900 transition-colors group-hover:text-brand-600">
+                            {solution.name}
+                          </span>
+                          <span className="mt-0.5 block text-[13px] leading-snug text-ink-500">
+                            {solution.navBlurb}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-xl bg-ink-900 p-5 text-white">
+                  <p className="font-display text-base font-bold">
+                    Not sure which applies?
+                  </p>
+                  <p className="mt-1.5 text-sm text-ink-300">
+                    Describe the site and we&apos;ll work through it with you.
+                  </p>
+                  <Link
+                    href="/solutions"
+                    className="btn mt-4 w-full bg-brand-600 text-white hover:bg-brand-700"
+                  >
+                    All solutions
+                  </Link>
+                  <Link
+                    href="/services"
+                    className="btn mt-2 w-full border border-ink-700 text-white hover:bg-ink-800"
+                  >
+                    Our services
                   </Link>
                 </div>
               </div>
@@ -381,6 +466,7 @@ function MobileDrawer({
   onClose: () => void;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
 
   return (
     /* Viewport-sized clipping frame. The panel below is parked off-screen with
@@ -441,6 +527,70 @@ function MobileDrawer({
             className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
           >
             Home
+          </Link>
+
+          {/* Solutions accordion — mirrors the category groups below. */}
+          <div className="mt-2 border-b border-ink-100">
+            <div className="flex items-stretch">
+              <Link
+                href="/solutions"
+                className="flex min-h-12 flex-1 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
+              >
+                Solutions
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setSolutionsOpen((open) => !open)}
+                className="tap flex shrink-0 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100"
+                aria-label={`${solutionsOpen ? "Collapse" : "Expand"} Solutions`}
+                aria-expanded={solutionsOpen}
+              >
+                <svg
+                  viewBox="0 0 20 20"
+                  className={`h-5 w-5 transition-transform duration-200 ${
+                    solutionsOpen ? "rotate-180" : ""
+                  }`}
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {solutionsOpen && (
+              <ul className="pb-2 pl-3">
+                {SOLUTION_NAV.map((solution) => (
+                  <li key={solution.slug}>
+                    <Link
+                      href={`/solutions/${solution.slug}`}
+                      className="flex min-h-11 items-center rounded-lg px-3 text-sm leading-snug text-ink-600 hover:bg-ink-100"
+                    >
+                      {solution.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <Link
+            href="/services"
+            className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
+          >
+            Services
+          </Link>
+
+          <Link
+            href="/blog"
+            className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
+          >
+            Safety Notes
           </Link>
 
           <p className="px-3 pb-1 pt-4 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ink-400">
@@ -519,6 +669,12 @@ function MobileDrawer({
               className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
             >
               All Products
+            </Link>
+            <Link
+              href="/standards"
+              className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-ink-900 hover:bg-ink-100"
+            >
+              Standards &amp; Compliance
             </Link>
             <Link
               href="/about"

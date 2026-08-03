@@ -277,6 +277,70 @@ export function buildSearchIndex(): SearchDoc[] {
  * Facets
  * ------------------------------------------------------------------ */
 
+/**
+ * Catalogue-wide tally of standards, most common first.
+ *
+ * Source data cites the same standard both with and without its edition year
+ * ("EN 388" and "EN 388:2016"), which would otherwise split one standard
+ * across two rows and understate both. Codes are normalised to the base
+ * reference for counting, and the editions seen are kept so the page can show
+ * which revision the catalogue actually cites.
+ */
+export type StandardTally = {
+  /** Base reference, e.g. "EN 388". */
+  code: string;
+  /** How many products cite it, across all editions. */
+  count: number;
+  /** Editions seen, newest first, e.g. ["2016"]. */
+  editions: string[];
+};
+
+export function getStandardsTally(limit = 12): StandardTally[] {
+  const counts = new Map<string, number>();
+  const editions = new Map<string, Set<string>>();
+
+  for (const product of products) {
+    for (const raw of product.standards) {
+      const [code, edition] = raw.split(":");
+      const key = code.trim();
+      if (!key) continue;
+
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+      if (edition) {
+        const set = editions.get(key) ?? new Set<string>();
+        set.add(edition.trim());
+        editions.set(key, set);
+      }
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([code, count]) => ({
+      code,
+      count,
+      editions: [...(editions.get(code) ?? [])].sort().reverse(),
+    }));
+}
+
+/** How many catalogue products cite at least one standard. */
+export function countCertifiedProducts(): number {
+  return products.filter((p) => p.standards.length > 0).length;
+}
+
+/** Distinct base references cited anywhere in the catalogue. */
+export function countDistinctStandards(): number {
+  const seen = new Set<string>();
+  for (const product of products) {
+    for (const raw of product.standards) {
+      const code = raw.split(":")[0].trim();
+      if (code) seen.add(code);
+    }
+  }
+  return seen.size;
+}
+
 /** Distinct standards present in a product set, most common first. */
 export function collectStandards(list: Product[]): string[] {
   const tally = new Map<string, number>();
