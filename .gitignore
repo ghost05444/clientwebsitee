@@ -48,3 +48,10 @@ next-env.d.ts
 # QA artefacts
 /scripts/qa-shots/
 /scripts/qa-report.txt
+
+# Image-audit working files (regenerate with `npm run audit:*`)
+/scripts/candidates/
+/scripts/candidates-c/
+/scripts/image-sheets/
+/scripts/ocr-cache.json
+/eng.traineddata

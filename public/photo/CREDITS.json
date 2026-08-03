@@ -1,0 +1,20 @@
+{
+  "note": "All images are works of the US federal government and are in the public domain: free for commercial use, no attribution required. Sources are recorded for the client's files only.",
+  "images": [
+    {
+      "name": "hero-firefighter",
+      "credit": "US Navy photo — public domain",
+      "page": "https://commons.wikimedia.org/wiki/File:US_Navy_070829-N-4965F-015_Flames_push_water_from_a_fire_hose_back_as_a_federal_firefighter_assigned_to_Navy_Region_Hawaii_Federal_Fire_Department_combats_a_fire_during_an_aircraft_firefighting_training_evolution_with_the_Mobile.jpg"
+    },
+    {
+      "name": "crew-aluminised",
+      "credit": "US Air Force photo — public domain",
+      "page": "https://commons.wikimedia.org/wiki/File:Aircraft_Rescue_Firefighting_training.jpg"
+    },
+    {
+      "name": "interior-burn",
+      "credit": "US Air Force photo — public domain",
+      "page": "https://commons.wikimedia.org/wiki/File:Air_Force_Fire_Training.jpg"
+    }
+  ]
+}

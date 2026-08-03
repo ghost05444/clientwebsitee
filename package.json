@@ -14,7 +14,11 @@
     "crawl": "node scripts/crawl-all.mjs",
     "ix": "node scripts/interaction-test.mjs",
     "prebuild": "node scripts/build-data.mjs && node scripts/build-mosaics.mjs",
-    "mosaics": "node scripts/build-mosaics.mjs"
+    "mosaics": "node scripts/build-mosaics.mjs",
+    "audit:images": "node scripts/find-branded-images.mjs",
+    "photos": "node scripts/fetch-photos.mjs",
+    "audit:sheets": "node scripts/build-image-sheets.mjs",
+    "audit:report": "node scripts/build-branded-report.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.25",
@@ -34,6 +38,7 @@
     "playwright": "^1.62.1",
     "sharp": "^0.35.3",
     "tailwindcss": "^4",
+    "tesseract.js": "^7.0.0",
     "typescript": "^5"
   }
 }

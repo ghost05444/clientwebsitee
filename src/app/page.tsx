@@ -7,7 +7,7 @@ import { CountUp } from "@/components/CountUp";
 import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
 import { EmberField } from "@/components/EmberField";
-import { ProductMosaic } from "@/components/ProductMosaic";
+import { PhotoBackdrop } from "@/components/PhotoBackdrop";
 import { WhatsAppIcon } from "@/components/Header";
 import {
   getMainCategories,
@@ -60,13 +60,15 @@ function Hero() {
   return (
     <section className="grain relative overflow-hidden bg-ink-950">
       {/* --- Depth stack, back to front -------------------------------------
-          1. product mosaic   — owned imagery, reads as industrial texture
-          2. blueprint grid   — technical structure
-          3. drifting orbs    — colour depth
-          4. heat wash        — fire identity, rising from the bottom edge
-          5. ember field      — live particles (canvas, motion-gated)
-          All decorative, all non-interactive. */}
-      <ProductMosaic variant="hero" opacity={0.3} />
+          1. photograph      — firefighter at a live burn, under a heavy scrim
+          2. blueprint grid  — technical structure
+          3. drifting glows  — colour depth
+          4. heat wash       — ember light rising from the bottom edge
+          5. ember field     — live particles (canvas, motion-gated)
+          All decorative, all non-interactive. The scrim on the photograph is
+          what keeps the copy legible; nothing here is load-bearing for
+          contrast on its own. */}
+      <PhotoBackdrop name="hero-firefighter" focus="left" position="70% center" priority />
 
       <div
         data-parallax="0.06"
@@ -114,8 +116,11 @@ function Hero() {
               Serving Anjar, Kachchh &amp; all of Gujarat
             </p>
 
-            {/* Each line rises out of its own overflow mask, one beat apart. */}
-            <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-[4.25rem]">
+            {/* Each line rises out of its own overflow mask, one beat apart.
+                `drop-shadow` rather than `text-shadow`: it follows the glyph
+                edges, so it lifts the type off the flames without the muddy
+                halo a blurred box shadow leaves behind. */}
+            <h1 className="mt-6 text-[2.75rem] font-bold leading-[0.98] tracking-[-0.03em] text-white [text-wrap:balance] drop-shadow-[0_2px_24px_rgb(0_0_0/0.65)] sm:text-6xl lg:text-7xl xl:text-[5rem]">
               <span className="hero-line">
                 <span style={hd(120)}>Safety equipment</span>
               </span>
@@ -138,7 +143,7 @@ function Hero() {
             </h1>
 
             <p
-              className="hero-fade mt-6 max-w-xl text-base leading-relaxed text-ink-300 sm:text-lg"
+              className="hero-fade mt-7 max-w-lg text-[15px] leading-[1.7] text-ink-200/90 drop-shadow-[0_1px_10px_rgb(0_0_0/0.6)] sm:text-[17px]"
               style={hd(430)}
             >
               Certified head-to-toe PPE, fall protection and fire safety systems
@@ -163,7 +168,7 @@ function Hero() {
             </div>
 
             <dl
-              className="hero-fade mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-ink-800 pt-7"
+              className="hero-fade mt-11 grid max-w-lg grid-cols-3 gap-4 border-t border-white/15 pt-7"
               style={hd(620)}
             >
               {[
