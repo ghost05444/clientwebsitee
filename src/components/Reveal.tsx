@@ -40,7 +40,45 @@ export function Reveal() {
       { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
     );
 
+    /**
+     * Split `[data-words]` text into per-word spans.
+     *
+     * Only runs on elements whose content is a single text node — anything
+     * with nested markup is left alone rather than having its structure
+     * flattened, and `data-split` marks the element so a re-scan (which
+     * fires on every DOM mutation) never splits the same text twice.
+     */
+    const splitWords = () => {
+      document
+        .querySelectorAll<HTMLElement>("[data-words]:not([data-split])")
+        .forEach((el) => {
+          const text = el.textContent ?? "";
+          if (el.childNodes.length !== 1 || el.firstChild?.nodeType !== Node.TEXT_NODE) {
+            el.dataset.split = "skipped";
+            return;
+          }
+
+          const words = text.split(/\s+/).filter(Boolean);
+          el.textContent = "";
+
+          words.forEach((word, i) => {
+            const span = document.createElement("span");
+            span.className = "w";
+            span.textContent = word;
+            span.style.setProperty("--rd", `${Math.min(i * 34, 700)}ms`);
+            el.append(span);
+            // Real space between spans, so the text still wraps and is still
+            // selectable and readable to assistive tech as one sentence.
+            if (i < words.length - 1) el.append(document.createTextNode(" "));
+          });
+
+          el.dataset.split = "true";
+        });
+    };
+
     const scan = () => {
+      splitWords();
+
       // Assign cascade delays. Only direct members of a group (not items of
       // a nested group) inherit its step, and the delay is capped so long
       // grids don't leave the tail waiting forever.
@@ -58,7 +96,7 @@ export function Reveal() {
         });
 
       document
-        .querySelectorAll(".reveal:not(.is-visible)")
+        .querySelectorAll(".reveal:not(.is-visible), [data-words]:not(.is-visible)")
         .forEach((el) => observer.observe(el));
     };
 

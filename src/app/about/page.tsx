@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Section, SectionHeader } from "@/components/Section";
 import { CountUp } from "@/components/CountUp";
+import { KineticMarquee } from "@/components/KineticMarquee";
 import { WhatsAppIcon } from "@/components/Header";
 import { getMainCategories, products } from "@/lib/catalog";
 import {
@@ -96,7 +97,7 @@ export default function AboutPage() {
 
           <p className="hero-fade eyebrow mt-6 text-brand-400">About us</p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+          <h1 className="text-mega mt-3 max-w-5xl font-bold text-white">
             <span className="hero-line">
               <span style={{ "--hd": "80ms" } as React.CSSProperties}>
                 We sell the equipment
@@ -256,6 +257,11 @@ export default function AboutPage() {
           ))}
         </div>
       </section>
+
+      <KineticMarquee
+        phrases={["Anjar", "Kachchh", "Gujarat", "All India"]}
+        tone="light"
+      />
 
       {/* ================= Values ================= */}
       <Section>

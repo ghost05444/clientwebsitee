@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Link } from "@/components/Link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Section, SectionHeader } from "@/components/Section";
+import { ScrollSteps } from "@/components/ScrollSteps";
 import { WhatsAppIcon } from "@/components/Header";
 import { site, telHref, whatsappHref, GENERAL_ENQUIRY_MESSAGE } from "@/lib/site";
 
@@ -132,7 +133,7 @@ export default function ServicesPage() {
         <div className="container-page relative py-14 sm:py-20 lg:py-24">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Services" }]} />
 
-          <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="text-mega mt-6 max-w-5xl font-bold text-white">
             <span className="hero-line">
               <span style={{ "--hd": "60ms" } as React.CSSProperties}>
                 The work around
@@ -236,25 +237,7 @@ export default function ServicesPage() {
           description="Most enquiries are answered the same day. Larger rollouts get the assessment step first."
         />
 
-        <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-stagger="100">
-          {ENGAGEMENT.map((step, i) => (
-            <li
-              key={step.label}
-              className="reveal rounded-2xl border border-ink-200 bg-white p-6"
-            >
-              <span className="font-display text-3xl font-bold text-brand-600">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="eyebrow mt-2">{step.label}</p>
-              <h3 className="mt-1 font-display text-lg font-bold text-ink-900">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-600">
-                {step.body}
-              </p>
-            </li>
-          ))}
-        </ol>
+        <ScrollSteps steps={ENGAGEMENT} eyebrow="Start to resupply" />
       </Section>
 
       {/* ================= CTA ================= */}

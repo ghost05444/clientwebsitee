@@ -22,11 +22,19 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
     <>
       <nav aria-label="Breadcrumb" className="min-w-0">
-        <ol className="no-scrollbar flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-[13px]">
+        {/* Crumbs cascade in one after another via the motion driver. The
+            short 45ms step keeps a four-level trail under a quarter second. */}
+        <ol
+          data-stagger="45"
+          className="no-scrollbar flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-[13px]"
+        >
           {items.map((item, i) => {
             const last = i === items.length - 1;
             return (
-              <li key={`${item.label}-${i}`} className="flex shrink-0 items-center gap-1.5">
+              <li
+                key={`${item.label}-${i}`}
+                className="reveal flex shrink-0 items-center gap-1.5"
+              >
                 {i > 0 && (
                   <svg
                     viewBox="0 0 20 20"

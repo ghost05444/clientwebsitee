@@ -62,8 +62,10 @@ export function SectionHeader({
           </p>
         )}
 
+        {/* One size step up on the fluid `--text-display` token, so section
+            titles scale with the viewport alongside the page heroes. */}
         <h2
-          className={`reveal mt-2 text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem] ${
+          className={`reveal mt-2 text-4xl font-bold tracking-tight sm:text-5xl lg:text-display ${
             tone === "dark" ? "text-white" : "text-ink-900"
           }`}
         >

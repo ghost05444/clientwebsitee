@@ -46,14 +46,26 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-barlow), var(--font-inter), ui-sans-serif, sans-serif;
 
-  /* Tightened display scale — the reference site's type is small and flat. */
-  --text-display: 3.5rem;
+  /* Fluid display scale. Both sizes interpolate with the viewport rather
+     than stepping at breakpoints, so a hero reads the same at 1280px and
+     1900px. The clamp floor is the phone size and the ceiling stops the
+     type running away on ultrawide. */
+  --text-display: clamp(2.5rem, 5.5vw, 4.25rem);
   --text-display--line-height: 1.02;
   --text-display--letter-spacing: -0.02em;
   --text-display--font-weight: 700;
 
+  --text-mega: clamp(3rem, 8vw, 7rem);
+  --text-mega--line-height: 0.95;
+  --text-mega--letter-spacing: -0.03em;
+  --text-mega--font-weight: 700;
+
   /* -- Motion ------------------------------------------------------------ */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Published by the motion driver; declared here so anything reading it
+     has a sane value before (and without) JS. */
+  --scroll-velocity: 0;
 
   /* -- Layout ------------------------------------------------------------ */
   --spacing-header: 4rem;
@@ -546,5 +558,110 @@
   /* Stable digit widths so count-up numbers don't wobble. */
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- Display typography ----------------------------------------------
+     `.text-mega` is deliberately two rules. Tailwind generates the size,
+     line-height and tracking from the `--text-mega` theme token; this block
+     adds the family and casing. Different properties, same class, so they
+     compose rather than fight. */
+  .text-mega {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+  }
+
+  /* Outlined type.
+
+     Note it hollows the glyph with `-webkit-text-fill-color`, not `color`.
+     Setting `color: transparent` alongside `-webkit-text-stroke: …
+     currentColor` paints a transparent stroke onto transparent text — the
+     stroke resolves `currentColor` to the very value that just erased it,
+     and nothing renders. Keeping `color` intact leaves `currentColor` a real
+     colour for the stroke to use.
+
+     The class sets no colour of its own: the caller's `text-*` utility
+     supplies it, which doubles as the fallback — a browser without
+     `-webkit-text-stroke` simply renders solid text. */
+  @supports (-webkit-text-stroke: 1px currentColor) {
+    .text-outline {
+      -webkit-text-stroke: 1.5px currentColor;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  /* ---- Word cascade — driver splits `[data-words]` into `.w` spans ------ */
+  [data-words] .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.6em);
+    transition:
+      opacity 0.5s var(--ease-out-quint),
+      transform 0.5s var(--ease-out-quint);
+    transition-delay: var(--rd, 0ms);
+  }
+
+  [data-words].is-visible .w {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Un-split (no JS) and reduced-motion both land on plain visible text. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-words] .w,
+    [data-words].is-visible .w {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* ---- Kinetic marquee band --------------------------------------------
+     Leans into the scroll direction via the driver's `--scroll-velocity`.
+     The variable rests at 0, so with JS off or motion reduced this is a
+     plain untransformed band. */
+  .kinetic-band {
+    transform: skewX(calc(var(--scroll-velocity) * -0.4deg));
+    transition: transform 0.2s linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kinetic-band {
+      transform: none;
+    }
+  }
+
+  /* ---- Footer reveal ----------------------------------------------------
+     The page content sits on its own opaque layer above a pinned footer, so
+     scrolling to the end slides the page up off the footer instead of
+     pushing it ahead.
+
+     Gated on viewport height for a reason: a `position: sticky; bottom: 0`
+     element taller than the viewport has its top edge pinned off-screen with
+     no way to scroll to it. The footer runs to roughly 600px at `lg`, so
+     below 760px of viewport the effect is dropped and the footer returns to
+     normal flow — the page simply ends with it, as it did before.
+
+     Short pages need no special case: with nothing to scroll, sticky has
+     nothing to do, and `main` still fills the gap via `flex-1`. */
+  @media (min-height: 760px) {
+    .footer-reveal-main {
+      position: relative;
+      z-index: 1;
+      /* Opaque, or the footer shows through the content sliding over it. */
+      background: #fff;
+    }
+
+    .footer-reveal-footer {
+      position: sticky;
+      bottom: 0;
+      z-index: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-reveal-main,
+    .footer-reveal-footer {
+      position: static;
+    }
   }
 }

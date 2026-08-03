@@ -110,12 +110,12 @@ export default async function SolutionPage({
           aria-hidden="true"
         />
 
-        <div className="container-page relative py-14 sm:py-20 lg:py-28">
+        <div className="container-page relative py-14 sm:py-20 lg:py-24">
           <Breadcrumbs items={crumbs} />
 
           <p className="hero-fade eyebrow mt-6 text-brand-400">Solution</p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="text-mega mt-3 max-w-5xl font-bold text-white">
             <span className="hero-line">
               <span style={{ "--hd": "80ms" } as React.CSSProperties}>
                 {solution.name}

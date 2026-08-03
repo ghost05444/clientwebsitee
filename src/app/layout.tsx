@@ -103,11 +103,17 @@ export default function RootLayout({
 
         <Header />
 
-        <main id="main" className="flex-1">
+        {/* `footer-reveal-*`: the page slides up off a pinned footer at the
+            end of a scroll. Both halves are inert below 760px of viewport
+            height — see the note in globals.css. */}
+        <main id="main" className="footer-reveal-main flex-1">
           {children}
         </main>
 
-        <Footer />
+        {/* `mt-auto` moves to this wrapper — it is the flex child now. */}
+        <div className="footer-reveal-footer mt-auto">
+          <Footer />
+        </div>
 
         {/* Fixed call / WhatsApp bar — mobile only. */}
         <MobileContactBar />

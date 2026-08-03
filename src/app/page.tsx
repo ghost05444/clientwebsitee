@@ -4,6 +4,8 @@ import { Section, SectionHeader } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
 import { CountUp } from "@/components/CountUp";
+import { RotatingWord } from "@/components/RotatingWord";
+import { KineticMarquee } from "@/components/KineticMarquee";
 import { WhatsAppIcon } from "@/components/Header";
 import {
   getMainCategories,
@@ -39,6 +41,7 @@ export default function HomePage() {
       <Categories />
       <WhyUs />
       <Featured />
+      <KineticMarquee />
       <Industries />
       <CtaBanner />
     </>
@@ -105,7 +108,13 @@ function Hero() {
                 </span>
               </span>
               <span className="hero-line">
-                <span style={hd(340)}>with your team.</span>
+                <span style={hd(340)}>
+                  with{" "}
+                  <RotatingWord
+                    words={["your team.", "factories.", "refineries.", "ports."]}
+                    resting="your team."
+                  />
+                </span>
               </span>
             </h1>
 
