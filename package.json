@@ -13,7 +13,8 @@
     "datasheets": "node scripts/fetch-datasheets.mjs",
     "crawl": "node scripts/crawl-all.mjs",
     "ix": "node scripts/interaction-test.mjs",
-    "prebuild": "node scripts/build-data.mjs"
+    "prebuild": "node scripts/build-data.mjs && node scripts/build-mosaics.mjs",
+    "mosaics": "node scripts/build-mosaics.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.25",

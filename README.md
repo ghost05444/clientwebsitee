@@ -104,6 +104,7 @@ Currently configured:
 | `npm run data`       | Transforms `scripts/raw/*.json` into typed catalogue data + search index |
 | `npm run images`     | Downloads product images, emits 400w/900w WebP into `public/media/`      |
 | `npm run datasheets` | Mirrors datasheet PDFs into `public/datasheets/`                         |
+| `npm run mosaics`    | Bakes the blurred product-mosaic backdrop textures into public/bg/ |
 | `npm run qa`         | Playwright sweep: overflow, alt text, tap targets, console errors, links |
 | `npm run ix`         | Interaction tests: drawer, search, filters, form validation              |
 | `npm run crawl`      | Requests all 919 routes, fails on any non-200                            |
@@ -188,6 +189,67 @@ The form deliberately avoids `useSearchParams` (see
 subtree behind a Suspense boundary, so only the loading skeleton — not the
 form — would end up in the prerendered HTML, and Netlify's build-time form
 detection would find nothing.
+
+---
+
+## The fire-safety visual theme
+
+The brand identity is built from assets we control, not stock photography.
+
+- **Ember particles** ([`EmberField.tsx`](src/components/EmberField.tsx)) — a
+  canvas field of embers drifting up through the hero and the closing CTA.
+  Particles are pre-rendered once as sprites and blitted, rather than building
+  a radial gradient per particle per frame. Pauses when off-screen or when the
+  tab is hidden, and never mounts at all under `prefers-reduced-motion`.
+- **Heat wash** (`.heat-base`, `.heat-top`) — layered radial gradients casting
+  ember light up from the bottom edge of dark sections, with a slow breathing
+  `.heat-pulse`.
+- **Flame headline** (`.text-flame`) — a gradient fill that drifts across the
+  glyphs. Falls back to a solid `text-brand-500` where `background-clip: text`
+  is unsupported.
+- **Molten seam** (`.ember-rule`) — a glowing hairline that closes the hero and
+  underlines each interior page header.
+- **Warm wash** (`.warm-wash`) — light sections carry a faint warm tint so the
+  page stays one temperature instead of alternating hot dark slabs with
+  clinical white ones.
+- **Product mosaic** ([`ProductMosaic.tsx`](src/components/ProductMosaic.tsx)) —
+  abstract industrial texture behind dark sections.
+
+### Why the backdrops are not stock photos
+
+Stock imagery was tried and rejected. Filtering to licences that carry no
+attribution requirement (CC0 / public domain) leaves a pool with almost nothing
+on-brand for this trade — the best matches returned were a Belgian fire
+brigade's liveried truck and a Scandinavian jetty at night. Either would look
+worse on a Gujarati PPE supplier's site than no photo at all.
+
+Instead the backdrops are generated from the client's own ~1900 product shots
+by [`scripts/build-mosaics.mjs`](scripts/build-mosaics.mjs), which tiles them,
+blurs them into abstract texture and writes three ~7KB WebP files. On-domain by
+definition, no licensing questions, and it reuses images the site already ships.
+
+Two things that script gets right and are easy to get wrong:
+
+- The blur is a **second sharp pass** over a flattened buffer. sharp applies
+  `composite` at the end of a pipeline, so `.composite(tiles).blur()` blurs the
+  blank base and paints sharp tiles on top — the mosaic came out as a fully
+  legible product grid.
+- Tiles are filtered by **image entropy**. The catalogue contains a few
+  near-blank shots, including a literal "No image available" graphic, which are
+  invisible in a product grid but obvious as flat rectangles in a mosaic.
+
+### Performance
+
+The blur is baked at build time rather than applied with a CSS `filter`, and
+the ambient glows are radial gradients rather than `blur-[120px]` on a solid
+circle. Both started life as runtime filters; because the elements drift, the
+compositor re-blurred them every frame.
+
+Note for anyone re-measuring: **headless Chromium reports misleading frame
+rates.** The same page measured 19fps by default and 103fps with
+`--disable-gpu-vsync --disable-frame-rate-limit`, on the same software
+renderer. Profile with those flags, or in a real browser, before chasing a
+regression that isn't there.
 
 ---
 

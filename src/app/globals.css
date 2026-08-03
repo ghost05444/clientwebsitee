@@ -29,6 +29,18 @@
   --color-hivis-600: #d97706;
   --color-hivis-700: #b45309;
 
+  /* -- Flame: the fire-safety identity ----------------------------------
+     Warmer and more saturated than `brand`, which stays the UI red for
+     buttons and links. Flame is atmosphere only — embers, heat glow,
+     gradient text — so the two never compete for the same job. */
+  --color-flame-300: #ffd18a;
+  --color-flame-400: #ffab3d;
+  --color-flame-500: #ff8412;
+  --color-flame-600: #f45f07;
+  --color-flame-700: #cc3d05;
+  --color-flame-800: #9a2708;
+  --color-flame-900: #6b1a08;
+
   /* -- Ink: cool industrial neutrals ------------------------------------- */
   --color-ink-50: #f6f8fa;
   --color-ink-100: #eceff3;
@@ -218,6 +230,97 @@
       var(--color-ink-900) 8px 16px
     );
   }
+
+  /* ====================================================================== *
+     Fire layer
+     Atmosphere for the fire-safety identity. Every piece is decorative,
+     `pointer-events: none`, and sits behind content — so none of it can
+     intercept a tap or hurt contrast.
+     ====================================================================== */
+
+  /* Heat rising from the bottom edge of a dark section: a wide, soft ember
+     wash. Two stacked radials read as depth rather than a flat band. */
+  .heat-base {
+    background-image:
+      /* Core: a hot band hugging the bottom edge. */
+      radial-gradient(
+        ellipse 130% 52% at 50% 116%,
+        rgb(255 138 24 / 0.55) 0%,
+        rgb(226 74 8 / 0.32) 28%,
+        rgb(150 38 8 / 0.14) 52%,
+        transparent 74%
+      ),
+      /* Off-centre flare, so the glow is not a symmetrical arch. */
+      radial-gradient(
+        ellipse 62% 44% at 24% 112%,
+        rgb(255 168 48 / 0.34) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 46% 36% at 78% 118%,
+        rgb(220 31 31 / 0.26) 0%,
+        transparent 62%
+      );
+  }
+
+  /* Same idea, cast from the top — used where a section follows a dark one
+     and needs the heat to carry across the seam. */
+  .heat-top {
+    background-image: radial-gradient(
+      ellipse 110% 55% at 50% -22%,
+      rgb(244 95 7 / 0.22) 0%,
+      transparent 64%
+    );
+  }
+
+  /* Molten hairline. Brighter in the middle, fading out at both ends, so it
+     reads as a glowing seam rather than a border. */
+  .ember-rule {
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-flame-700) 18%,
+      var(--color-flame-400) 50%,
+      var(--color-flame-700) 82%,
+      transparent
+    );
+  }
+
+  /* Soft ambient glow.
+     A radial-gradient, deliberately not `bg-* blur-[120px]`. The orbs drift
+     continuously, and a filtered layer has to be re-blurred on every frame —
+     that alone accounted for most of a dropped frame budget on the home page.
+     A gradient is painted once and composited free, and at these radii the
+     two are visually indistinguishable. */
+  .glow {
+    background-image: radial-gradient(
+      closest-side,
+      var(--glow-color, rgb(220 31 31 / 0.3)),
+      transparent 100%
+    );
+  }
+
+  /* Warm tint for light sections. Keeps the page one temperature instead of
+     alternating between a hot dark hero and clinical white slabs — the tint
+     is far too weak to affect text contrast. */
+  .warm-wash {
+    background-color: #fdfaf8;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 12% 0%, rgb(244 95 7 / 0.055), transparent 60%),
+      radial-gradient(ellipse 60% 45% at 92% 100%, rgb(220 31 31 / 0.045), transparent 62%);
+  }
+
+  /* Film grain. A single inline SVG turbulence tile — no image request, and
+     it kills the banding that large soft gradients produce on 8-bit panels. */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
 }
 
 /* ==========================================================================
@@ -297,6 +400,18 @@
 
   .reveal.zoom {
     transform: scale(0.95);
+  }
+
+  /* These three must be re-stated with `.is-visible`, not left to the base
+     `.reveal.is-visible { transform: none }` rule. That rule has identical
+     specificity (0,2,0) and is declared earlier, so the variants above would
+     win the cascade and the element would never settle — a `.zoom` reveal
+     stayed permanently at 95%, which also shrank the CTA buttons inside it
+     below the 44px tap-target minimum. */
+  .reveal.from-left.is-visible,
+  .reveal.from-right.is-visible,
+  .reveal.zoom.is-visible {
+    transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -558,6 +673,86 @@
   /* Stable digit widths so count-up numbers don't wobble. */
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- Fire motion ------------------------------------------------------
+     The ember particles themselves are canvas (see EmberField). These are
+     the CSS-side effects: the slow breathing of the heat wash, the flicker
+     on the molten hairline, and the gradient fill for display type. */
+
+  /* Gradient headline fill. `background-clip: text` needs a painted
+     background and transparent fill; the `text-*` utility on the element
+     still supplies the fallback colour if the clip is unsupported. */
+  .text-flame {
+    background-image: linear-gradient(
+      98deg,
+      var(--color-flame-400) 0%,
+      var(--color-brand-500) 42%,
+      var(--color-flame-500) 78%,
+      var(--color-flame-300) 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Drift the gradient across the glyphs — slow enough to read as a
+       shimmer of heat, not a rainbow sweep. */
+    .text-flame {
+      animation: flame-shift 9s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes flame-shift {
+    to {
+      background-position: 100% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .heat-pulse {
+      animation: heat-breathe 7s ease-in-out infinite alternate;
+    }
+
+    .ember-flicker {
+      animation: ember-flicker 3.4s ease-in-out infinite;
+    }
+  }
+
+  @keyframes heat-breathe {
+    from {
+      opacity: 0.72;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Irregular steps, so it flickers like a flame rather than throbbing. */
+  @keyframes ember-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    22% {
+      opacity: 0.62;
+    }
+
+    38% {
+      opacity: 0.9;
+    }
+
+    61% {
+      opacity: 0.5;
+    }
+
+    79% {
+      opacity: 0.86;
+    }
   }
 
   /* ---- Display typography ----------------------------------------------

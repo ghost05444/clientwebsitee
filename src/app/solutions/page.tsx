@@ -48,7 +48,7 @@ export default function SolutionsPage() {
         />
         <div
           data-parallax="-0.1"
-          className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full bg-brand-600/20 blur-[120px]"
+          className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full glow" style={{ "--glow-color": "rgb(220 31 31 / 0.20)" } as React.CSSProperties}
           aria-hidden="true"
         />
 

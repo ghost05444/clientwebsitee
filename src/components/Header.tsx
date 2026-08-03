@@ -280,10 +280,14 @@ export function Header() {
                 href={whatsappHref(GENERAL_ENQUIRY_MESSAGE)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-whatsapp hidden px-4 sm:inline-flex"
+                /* At exactly `lg` the full nav appears while the viewport is
+                   still only 1024px wide, and label + nav + search together
+                   overflow the container. Drop back to an icon-only button
+                   through that band and restore the label at `xl`. */
+                className="btn-whatsapp hidden shrink-0 px-3 sm:inline-flex lg:px-3 xl:px-4"
               >
                 <WhatsAppIcon />
-                <span className="hidden md:inline">WhatsApp</span>
+                <span className="hidden md:inline lg:hidden xl:inline">WhatsApp</span>
                 <span className="md:hidden">Chat</span>
               </a>
 

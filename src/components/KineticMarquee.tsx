@@ -23,23 +23,24 @@ export function KineticMarquee({
   const dark = tone === "dark";
 
   return (
+    /* Two elements on purpose. `.kinetic-band` skews with scroll velocity, and
+       an element's own `overflow: hidden` clips its children but not its own
+       transformed box — the skewed corners still widened the document by a
+       pixel mid-scroll. The outer wrapper does the clipping; the inner one
+       does the skewing. */
     <section
-      className={`kinetic-band relative overflow-hidden py-10 sm:py-14 ${
-        dark ? "bg-ink-950" : "bg-ink-50"
-      }`}
+      className={`relative overflow-x-clip ${dark ? "bg-ink-950" : "warm-wash"}`}
       aria-label={`${site.name} — what we supply`}
     >
-      <MarqueeRow
-        phrases={phrases}
-        dark={dark}
-        duration="52s"
-      />
-      <MarqueeRow
-        phrases={[...phrases].reverse()}
-        dark={dark}
-        duration="64s"
-        reverse
-      />
+      <div className="kinetic-band py-10 sm:py-14">
+        <MarqueeRow phrases={phrases} dark={dark} duration="52s" />
+        <MarqueeRow
+          phrases={[...phrases].reverse()}
+          dark={dark}
+          duration="64s"
+          reverse
+        />
+      </div>
     </section>
   );
 }

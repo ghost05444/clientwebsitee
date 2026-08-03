@@ -6,6 +6,8 @@ import { ProductImage } from "@/components/ProductImage";
 import { CountUp } from "@/components/CountUp";
 import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
+import { EmberField } from "@/components/EmberField";
+import { ProductMosaic } from "@/components/ProductMosaic";
 import { WhatsAppIcon } from "@/components/Header";
 import {
   getMainCategories,
@@ -56,8 +58,16 @@ function Hero() {
   const heroCats = categories.slice(0, 4);
 
   return (
-    <section className="relative overflow-hidden bg-ink-950">
-      {/* Depth: fine grid faded at the edges + two slowly drifting glows. */}
+    <section className="grain relative overflow-hidden bg-ink-950">
+      {/* --- Depth stack, back to front -------------------------------------
+          1. product mosaic   — owned imagery, reads as industrial texture
+          2. blueprint grid   — technical structure
+          3. drifting orbs    — colour depth
+          4. heat wash        — fire identity, rising from the bottom edge
+          5. ember field      — live particles (canvas, motion-gated)
+          All decorative, all non-interactive. */}
+      <ProductMosaic variant="hero" opacity={0.3} />
+
       <div
         data-parallax="0.06"
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -74,24 +84,31 @@ function Hero() {
       />
       <div
         data-parallax="-0.12"
-        className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full bg-brand-600/25 blur-[120px]"
+        className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full glow" style={{ "--glow-color": "rgb(220 31 31 / 0.25)" } as React.CSSProperties}
         aria-hidden="true"
       />
       <div
         data-parallax="-0.08"
-        className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full bg-hivis-500/10 blur-[110px]"
+        className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full glow" style={{ "--glow-color": "rgb(244 95 7 / 0.14)" } as React.CSSProperties}
         aria-hidden="true"
       />
 
-      <div className="container-page relative py-16 sm:py-20 lg:py-28">
+      <div
+        className="heat-base heat-pulse pointer-events-none absolute inset-x-0 bottom-0 h-[62%]"
+        aria-hidden="true"
+      />
+
+      <EmberField className="z-[1]" density={2.4} max={80} />
+
+      <div className="container-page relative z-[2] py-16 sm:py-20 lg:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <p
-              className="hero-fade inline-flex items-center gap-2 rounded-full border border-ink-800 bg-ink-900/60 px-3 py-1.5 text-xs font-medium text-ink-300"
+              className="hero-fade inline-flex items-center gap-2 rounded-full border border-flame-700/40 bg-ink-900/70 px-3 py-1.5 text-xs font-medium text-ink-200 backdrop-blur-sm"
               style={hd(0)}
             >
               <span
-                className="h-1.5 w-1.5 rounded-full bg-hivis-400"
+                className="ember-flicker h-1.5 w-1.5 rounded-full bg-flame-400 shadow-[0_0_8px_2px_rgb(255_171_61/0.65)]"
                 aria-hidden="true"
               />
               Serving Anjar, Kachchh &amp; all of Gujarat
@@ -104,7 +121,9 @@ function Hero() {
               </span>
               <span className="hero-line">
                 <span style={hd(230)}>
-                  <span className="text-brand-500">that comes home</span>
+                  {/* text-brand-500 is the fallback if background-clip:text
+                      is unsupported; .text-flame paints over it. */}
+                  <span className="text-flame text-brand-500">that comes home</span>
                 </span>
               </span>
               <span className="hero-line">
@@ -228,7 +247,13 @@ function Hero() {
         </div>
       </div>
 
-      <div className="hazard-rule hazard-rule-move h-1.5" aria-hidden="true" />
+      {/* Molten seam, then the hazard stripe — the hero burns down into the
+          page rather than stopping at a hard edge. */}
+      <div
+        className="ember-rule ember-flicker relative z-[2] h-px shadow-[0_0_18px_2px_rgb(244_95_7/0.55)]"
+        aria-hidden="true"
+      />
+      <div className="hazard-rule hazard-rule-move relative z-[2] h-1.5" aria-hidden="true" />
     </section>
   );
 }
@@ -316,19 +341,25 @@ function Categories() {
             <li key={cat.slug} className="reveal">
               <Link
                 href={`/products/${cat.slug}`}
-                className="spot group flex h-full flex-col overflow-hidden rounded-xl border border-ink-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-600/5"
+                className="spot group relative flex h-full flex-col overflow-hidden rounded-xl border border-ink-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-flame-400/60 hover:shadow-xl hover:shadow-flame-600/15"
               >
-                <div className="bg-ink-50 p-4 transition-colors group-hover:bg-brand-50/60">
+                {/* Heat rises through the card on hover. */}
+                <span
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-flame-500/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  aria-hidden="true"
+                />
+
+                <div className="relative bg-ink-50 p-4 transition-colors duration-300 group-hover:bg-flame-300/15">
                   <ProductImage
                     image={img}
                     sizes="(min-width: 1024px) 300px, 45vw"
                     fallbackLabel={cat.name}
-                    className="transition-transform duration-300 group-hover:scale-105"
+                    className="transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
 
-                <div className="flex flex-1 flex-col p-3.5 sm:p-4">
-                  <h3 className="font-display text-base font-bold leading-tight text-ink-900 transition-colors group-hover:text-brand-600 sm:text-lg">
+                <div className="relative flex flex-1 flex-col p-3.5 sm:p-4">
+                  <h3 className="font-display text-base font-bold leading-tight text-ink-900 transition-colors group-hover:text-flame-700 sm:text-lg">
                     {cat.name}
                   </h3>
 
@@ -375,7 +406,7 @@ function WhyUs() {
   ];
 
   return (
-    <Section tone="dark">
+    <Section tone="dark" atmosphere>
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
           <SectionHeader
@@ -523,10 +554,21 @@ function Industries() {
 
 function CtaBanner() {
   return (
-    <section className="relative overflow-hidden bg-brand-700">
+    /* Deep ember base rather than flat brand red, so the fire gradient and
+       particles have somewhere dark to burn against. */
+    <section className="grain relative overflow-hidden bg-flame-900">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 90% 120% at 50% 108%, rgb(255 138 24 / 0.5) 0%, rgb(204 61 5 / 0.34) 32%, transparent 70%)",
+        }}
+        aria-hidden="true"
+      />
+
       <div
         data-parallax="0.08"
-        className="stripes-move pointer-events-none absolute inset-0 opacity-10"
+        className="stripes-move pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
           backgroundImage:
             "repeating-linear-gradient(-45deg, #fff 0 2px, transparent 2px 14px)",
@@ -534,13 +576,15 @@ function CtaBanner() {
         aria-hidden="true"
       />
 
-      <div className="container-page relative py-14 lg:py-20">
+      <EmberField density={2.8} max={70} />
+
+      <div className="container-page relative z-[2] py-14 lg:py-20">
         <div className="reveal zoom mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Tell us what you need protected.
           </h2>
 
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-brand-100 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-flame-300/90 sm:text-lg">
             Send us your requirement — quantity, standard, site conditions — and
             we&apos;ll come back with options and pricing.
           </p>
@@ -550,7 +594,7 @@ function CtaBanner() {
               href={whatsappHref(GENERAL_ENQUIRY_MESSAGE)}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn bg-white px-7 text-base text-brand-700 shadow-sm hover:bg-brand-50"
+              className="btn-shine btn bg-white px-7 text-base text-flame-800 shadow-lg hover:bg-flame-300"
             >
               <WhatsAppIcon className="h-5 w-5" />
               WhatsApp {site.phoneDisplay}
@@ -558,7 +602,7 @@ function CtaBanner() {
 
             <Link
               href="/contact"
-              className="btn border border-white/40 px-7 text-base text-white hover:bg-white/10"
+              className="btn border border-flame-300/40 px-7 text-base text-white backdrop-blur-sm hover:bg-white/10"
             >
               Send an enquiry
             </Link>

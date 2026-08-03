@@ -111,7 +111,7 @@ export default async function SolutionPage({
         )}
 
         <div
-          className="orb pointer-events-none absolute -right-40 -top-48 -z-10 h-[34rem] w-[34rem] rounded-full bg-brand-600/20 blur-[130px]"
+          className="orb pointer-events-none absolute -right-40 -top-48 -z-10 h-[34rem] w-[34rem] rounded-full glow" style={{ "--glow-color": "rgb(220 31 31 / 0.20)" } as React.CSSProperties}
           data-parallax="-0.1"
           aria-hidden="true"
         />

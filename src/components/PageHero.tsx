@@ -1,8 +1,14 @@
 import { Breadcrumbs, type Crumb } from "./Breadcrumbs";
+import { ProductMosaic } from "./ProductMosaic";
 
 /**
  * Compact page header used on every interior page — keeps breadcrumb, title
  * and supporting copy in one consistent block.
+ *
+ * Carries a restrained version of the home page's fire treatment: a warm
+ * wash, a blurred product-photo backdrop and a molten bottom rule. Deliberately
+ * lighter than the hero — these sit above dense catalogue content, so the
+ * atmosphere has to stay out of the way of scanning.
  */
 export function PageHero({
   crumbs,
@@ -20,8 +26,21 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-ink-200 bg-ink-50">
-      <div className="container-page py-5 sm:py-6">
+    <div className="warm-wash relative overflow-hidden">
+      <ProductMosaic variant="light" opacity={0.18} />
+
+      <div
+        className="heat-top pointer-events-none absolute inset-x-0 top-0 h-full opacity-60"
+        aria-hidden="true"
+      />
+
+      {/* Molten hairline instead of a flat border. */}
+      <div
+        className="ember-rule absolute inset-x-0 bottom-0 h-px opacity-70"
+        aria-hidden="true"
+      />
+
+      <div className="container-page relative z-[1] py-5 sm:py-6">
         <Breadcrumbs items={crumbs} />
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">

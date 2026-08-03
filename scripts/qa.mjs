@@ -81,8 +81,21 @@ for (const route of ROUTES) {
       continue;
     }
 
-    // Give lazy images + reveal animations a beat to settle.
-    await page.waitForTimeout(450);
+    // Walk the page so every scroll-reveal fires, then return to the top.
+    // Without this, un-revealed sections are still held at `scale(0.95)` by
+    // `.reveal.zoom`, and every measurement inside them comes back ~5% short —
+    // which shows up as phantom sub-44px tap targets.
+    await page.evaluate(async () => {
+      const step = window.innerHeight * 0.8;
+      for (let y = 0; y < document.body.scrollHeight; y += step) {
+        window.scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 90));
+      }
+      window.scrollTo(0, 0);
+    });
+
+    // Give lazy images + reveal transitions a beat to settle.
+    await page.waitForTimeout(900);
 
     const audit = await page.evaluate((minTap) => {
       const doc = document.documentElement;

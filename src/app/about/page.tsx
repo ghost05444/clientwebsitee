@@ -83,12 +83,12 @@ export default function AboutPage() {
         />
         <div
           data-parallax="-0.12"
-          className="orb pointer-events-none absolute -right-40 -top-44 h-[34rem] w-[34rem] rounded-full bg-brand-600/20 blur-[130px]"
+          className="orb pointer-events-none absolute -right-40 -top-44 h-[34rem] w-[34rem] rounded-full glow" style={{ "--glow-color": "rgb(220 31 31 / 0.20)" } as React.CSSProperties}
           aria-hidden="true"
         />
         <div
           data-parallax="-0.08"
-          className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full bg-hivis-500/10 blur-[110px]"
+          className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full glow" style={{ "--glow-color": "rgb(245 158 11 / 0.10)" } as React.CSSProperties}
           aria-hidden="true"
         />
 

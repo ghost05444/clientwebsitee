@@ -1,26 +1,58 @@
 import { Link } from "./Link";
+import { ProductMosaic } from "./ProductMosaic";
 
 /**
  * Shared section scaffolding so vertical rhythm and heading treatment stay
  * identical across every page.
+ *
+ * `atmosphere` adds the fire-safety backdrop — a blurred mosaic of the
+ * client's own product photography under a warm heat wash. It lives here
+ * rather than at each call site so every dark section is lit the same way,
+ * and so a section can opt out when its content already carries imagery.
  */
 export function Section({
   children,
   className = "",
   tone = "light",
   id,
+  atmosphere = false,
 }: {
   children: React.ReactNode;
   className?: string;
   tone?: "light" | "muted" | "dark";
   id?: string;
+  atmosphere?: boolean;
 }) {
   const toneClass =
-    tone === "dark" ? "bg-ink-950 text-ink-300" : tone === "muted" ? "bg-ink-50" : "bg-white";
+    tone === "dark"
+      ? "bg-ink-950 text-ink-300"
+      : tone === "muted"
+        ? "warm-wash"
+        : "bg-white";
 
   return (
-    <section id={id} className={`py-14 sm:py-16 lg:py-20 ${toneClass} ${className}`}>
-      <div className="container-page">{children}</div>
+    <section
+      id={id}
+      className={`relative py-14 sm:py-16 lg:py-20 ${toneClass} ${
+        atmosphere ? "grain overflow-hidden" : ""
+      } ${className}`}
+    >
+      {atmosphere && (
+        <>
+          <ProductMosaic
+            variant={tone === "dark" ? "dark" : "light"}
+            opacity={tone === "dark" ? 0.3 : 0.16}
+          />
+          <div
+            className={`heat-top heat-pulse pointer-events-none absolute inset-x-0 top-0 h-1/2 ${
+              tone === "dark" ? "" : "opacity-50"
+            }`}
+            aria-hidden="true"
+          />
+        </>
+      )}
+
+      <div className="container-page relative z-[1]">{children}</div>
     </section>
   );
 }
