@@ -12,7 +12,6 @@ export type Spec = { label: string; value: string };
 
 export type ProductImage = {
   src: string;
-  remote: string;
   alt: string;
 };
 
@@ -50,7 +49,36 @@ export type Category = {
   synthetic?: boolean;
 };
 
-export const products = productsJson as unknown as Product[];
+/**
+ * The generated JSON additionally records where each asset was scraped
+ * from — `images[].remote` and `datasheetRemote`. Nothing in the UI reads
+ * either: images resolve through the local `/media/...` variants and
+ * datasheets through the local `/datasheets/...` path.
+ *
+ * They are stripped here rather than ignored, because "unused" is not the
+ * same as "absent". `ProductGallery` and `ProductBrowser` are client
+ * components, so whatever they are handed is serialised into the RSC payload
+ * of the page — which put the source site's domain into the shipped HTML of
+ * every product and category page. Removing the fields at the boundary fixes
+ * every consumer at once, and dropping them from `ProductImage` means a
+ * future component cannot reintroduce the leak without a type error.
+ */
+type RawProduct = Omit<Product, "images"> & {
+  images: (ProductImage & { remote?: string })[];
+  datasheetRemote?: string;
+};
+
+function stripProvenance({ datasheetRemote: _, ...product }: RawProduct): Product {
+  return {
+    ...product,
+    images: product.images.map(({ src, alt }) => ({ src, alt })),
+  };
+}
+
+export const products: Product[] = (
+  productsJson as unknown as RawProduct[]
+).map(stripProvenance);
+
 export const categories = categoriesJson as unknown as Category[];
 
 /* ------------------------------------------------------------------ *

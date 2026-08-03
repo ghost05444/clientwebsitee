@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { Link } from "@/components/Link";
 import { getMainCategories } from "@/lib/catalog";
+
+/** Without this the 404 inherits the root layout's title — the same one the
+    homepage uses — so both pages present identically in a tab or a crawl. */
+export const metadata: Metadata = {
+  title: "Page not found",
+  description:
+    "That page could not be found. Browse our safety equipment categories or get in touch and we'll point you to the right product.",
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   const categories = getMainCategories().slice(0, 8);

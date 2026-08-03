@@ -63,8 +63,16 @@ export function HorizontalShowcase({ panels }: { panels: ShowcasePanel[] }) {
       const travel = wrapper.offsetHeight - window.innerHeight;
       if (travel <= 0) return;
 
+      // How far the track has to slide: its full width minus the width of the
+      // window it slides behind. That window is the sticky parent — the track
+      // itself is a flex row with no width constraint, so it stretches to fit
+      // its children and its own scrollWidth and clientWidth are always equal.
+      const viewport = track.parentElement;
+      if (!viewport) return;
+      const distance = track.scrollWidth - viewport.clientWidth;
+      if (distance <= 0) return;
+
       const progress = Math.min(Math.max(-rect.top / travel, 0), 1);
-      const distance = track.scrollWidth - track.clientWidth;
       track.style.transform = `translate3d(${-(progress * distance).toFixed(2)}px, 0, 0)`;
     };
 
@@ -153,7 +161,13 @@ function PanelCard({
         href={panel.href}
         className="spot group flex h-full flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-600/5"
       >
-        <div className="relative overflow-hidden bg-ink-50 p-6">
+        {/* Taller in horizontal mode: the card sits in a pinned full-height
+            band, and a short card leaves most of it empty. */}
+        <div
+          className={`relative overflow-hidden bg-ink-50 p-6 ${
+            horizontal ? "py-10" : ""
+          }`}
+        >
           <span
             className="text-outline absolute right-4 top-2 font-display text-6xl font-bold leading-none text-ink-300"
             aria-hidden="true"
@@ -171,11 +185,13 @@ function PanelCard({
                 height={400}
                 loading="lazy"
                 decoding="async"
-                className="mx-auto h-32 w-32 object-contain transition-transform duration-300 group-hover:scale-105"
+                className={`mx-auto w-full object-contain transition-transform duration-300 group-hover:scale-105 ${
+                  horizontal ? "h-56" : "h-32"
+                }`}
               />
             </div>
           ) : (
-            <div className="h-32" aria-hidden="true" />
+            <div className={horizontal ? "h-56" : "h-32"} aria-hidden="true" />
           )}
         </div>
 

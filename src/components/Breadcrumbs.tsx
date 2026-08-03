@@ -51,9 +51,11 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
                 )}
 
                 {item.href && !last ? (
+                  /* `min-h-11` keeps the crumb a 44px tap target on touch —
+                     13px inline text is otherwise only ~20px tall. */
                   <Link
                     href={item.href}
-                    className="text-ink-500 transition-colors hover:text-brand-600"
+                    className="inline-flex min-h-11 items-center text-ink-500 transition-colors hover:text-brand-600"
                   >
                     {item.label}
                   </Link>

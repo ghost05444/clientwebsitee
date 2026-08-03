@@ -92,12 +92,18 @@ export default async function SolutionPage({
             className="pointer-events-none absolute inset-0 -z-10 scale-110"
             aria-hidden="true"
           >
+            {/* Above the fold, so eager — but `fetchPriority="low"` keeps a
+                decorative 13%-opacity backdrop from competing with the real
+                LCP content for bandwidth. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={heroImage.src.replace(/\.webp$/, "-900.webp")}
               alt=""
               width={900}
               height={900}
+              loading="eager"
+              decoding="async"
+              fetchPriority="low"
               className="h-full w-full object-cover opacity-[0.13] blur-[2px]"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-ink-950 via-ink-950/85 to-ink-950" />
