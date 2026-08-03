@@ -14,6 +14,10 @@ import { useEffect } from "react";
  *   2. Spotlight — `.spot` elements get a cursor-following glow by feeding
  *      `--mx` / `--my` to a CSS radial gradient.
  *   3. Tilt — `.tilt` elements rotate subtly toward the cursor.
+ *   4. Parallax — `[data-parallax]` elements drift vertically against the
+ *      scroll, and the same listener publishes `--scroll-velocity`.
+ *   5. Word cascade — `[data-words]` splits its text into per-word spans
+ *      that reveal in sequence.
  *
  * Everything is delegated or observer-based (no per-card React state or
  * listeners), pointer effects only bind on hover-capable devices, and the
@@ -115,6 +119,129 @@ export function Reveal() {
     return () => {
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", resetTilt);
+    };
+  }, []);
+
+  /* ---- 4. Parallax + scroll velocity ----------------------------------- */
+  useEffect(() => {
+    // Parallax is decoration that costs a transform every frame. Touch
+    // platforms scroll on the compositor and reduced-motion users opted out,
+    // so neither gets the listener at all.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    type Target = {
+      el: HTMLElement;
+      /** Positive drifts slower than the page, negative counter-scrolls. */
+      factor: number;
+      /** Optional cap on travel, in px. */
+      clamp: number;
+      /** Document-space centre, measured with the transform cleared. */
+      centre: number;
+      height: number;
+    };
+
+    const root = document.documentElement;
+    let targets: Target[] = [];
+    let needsMeasure = true;
+    let raf = 0;
+    let lastY = window.scrollY;
+    let velocity = 0;
+
+    const collect = () => {
+      targets = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-parallax]"),
+      ).map((el) => ({
+        el,
+        factor: Number(el.dataset.parallax) || 0,
+        clamp: Number(el.dataset.parallaxClamp) || Infinity,
+        centre: 0,
+        height: 0,
+      }));
+      needsMeasure = true;
+    };
+
+    /**
+     * Measuring a translated element would fold the current offset back into
+     * the next one, so transforms are cleared first and every read happens in
+     * one batch — one forced reflow per measure, not one per element.
+     */
+    const measure = () => {
+      for (const t of targets) t.el.style.transform = "";
+      const scrollY = window.scrollY;
+      for (const t of targets) {
+        const r = t.el.getBoundingClientRect();
+        t.centre = r.top + scrollY + r.height / 2;
+        t.height = r.height;
+      }
+      needsMeasure = false;
+    };
+
+    const frame = () => {
+      raf = 0;
+      if (needsMeasure) measure();
+
+      const scrollY = window.scrollY;
+      const viewport = window.innerHeight;
+      const viewportCentre = scrollY + viewport / 2;
+
+      // Velocity eases toward the current per-frame delta, then back to rest,
+      // so the value never snaps and settles cleanly at zero.
+      const delta = scrollY - lastY;
+      lastY = scrollY;
+      velocity += (delta - velocity) * 0.25;
+      if (Math.abs(velocity) < 0.05) velocity = 0;
+      root.style.setProperty(
+        "--scroll-velocity",
+        Math.max(-1, Math.min(1, velocity / 40)).toFixed(3),
+      );
+
+      for (const t of targets) {
+        const offset = t.centre - viewportCentre;
+        // Skip anything comfortably off-screen — long pages keep the per-frame
+        // work proportional to what is actually visible.
+        if (Math.abs(offset) > viewport * 1.5 + t.height / 2) continue;
+        const shift = Math.max(
+          -t.clamp,
+          Math.min(t.clamp, offset * t.factor),
+        );
+        t.el.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`;
+      }
+
+      // Keep ticking while velocity decays so the value reaches rest even
+      // after the last scroll event.
+      if (velocity !== 0) raf = requestAnimationFrame(frame);
+    };
+
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    const onResize = () => {
+      needsMeasure = true;
+      schedule();
+    };
+
+    collect();
+    schedule();
+
+    // Client-side navigation swaps the targets out from under us.
+    const mo = new MutationObserver(() => {
+      collect();
+      schedule();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", onResize);
+      if (raf) cancelAnimationFrame(raf);
+      for (const t of targets) t.el.style.transform = "";
+      root.style.removeProperty("--scroll-velocity");
     };
   }, []);
 

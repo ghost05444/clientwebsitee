@@ -67,13 +67,46 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
   }
 
+  /* Smoothing is Lenis's job now (see SmoothScroll.tsx), and it only mounts
+     for pointer-fine, no-reduced-motion users. Everyone else — touch, and
+     anyone who asked for less motion — gets the browser's native `auto`,
+     which is what this block pins down. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
+  }
+
+  /* Lenis's own reset, inlined rather than imported so the whole cascade is
+     visible in one file. Only the `lenis` class hooks apply, so none of it
+     has any effect on the touch / reduced-motion path where Lenis is absent. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis:not(.lenis-autoToggle).lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis [data-lenis-prevent],
+  .lenis [data-lenis-prevent-wheel],
+  .lenis [data-lenis-prevent-touch],
+  .lenis [data-lenis-prevent-vertical],
+  .lenis [data-lenis-prevent-horizontal] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
+  .lenis.lenis-autoToggle {
+    transition-property: overflow;
+    transition-duration: 1ms;
+    transition-behavior: allow-discrete;
   }
 
   /* Safety net against horizontal scroll. `clip` rather than `hidden` on
@@ -301,7 +334,11 @@
     }
   }
 
-  /* ---- Ambient orbs — slow drift behind the hero ------------------------ */
+  /* ---- Ambient orbs — slow drift behind the hero ------------------------
+         Animated through the individual `translate` / `scale` properties
+         rather than `transform`, which leaves `transform` free for the
+         parallax driver. The two then compose natively instead of the
+         animation winning the cascade and swallowing the parallax. */
   @media (prefers-reduced-motion: no-preference) {
     .orb {
       animation: orb-drift 18s ease-in-out infinite alternate;
@@ -315,15 +352,18 @@
 
   @keyframes orb-drift {
     0% {
-      transform: translate3d(0, 0, 0) scale(1);
+      translate: 0 0;
+      scale: 1;
     }
 
     50% {
-      transform: translate3d(-48px, 36px, 0) scale(1.1);
+      translate: -48px 36px;
+      scale: 1.1;
     }
 
     100% {
-      transform: translate3d(28px, -26px, 0) scale(0.94);
+      translate: 28px -26px;
+      scale: 0.94;
     }
   }
 

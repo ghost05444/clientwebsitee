@@ -56,6 +56,7 @@ function Hero() {
     <section className="relative overflow-hidden bg-ink-950">
       {/* Depth: fine grid faded at the edges + two slowly drifting glows. */}
       <div
+        data-parallax="0.06"
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage:
@@ -69,10 +70,12 @@ function Hero() {
         aria-hidden="true"
       />
       <div
+        data-parallax="-0.12"
         className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full bg-brand-600/25 blur-[120px]"
         aria-hidden="true"
       />
       <div
+        data-parallax="-0.08"
         className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full bg-hivis-500/10 blur-[110px]"
         aria-hidden="true"
       />
@@ -178,9 +181,12 @@ function Hero() {
             </dl>
           </div>
 
-          {/* Category preview tiles — real product imagery, cursor tilt + glow. */}
+          {/* Category preview tiles — real product imagery, cursor tilt + glow.
+              Parallax sits on the inner grid, not the `.hero-fade` wrapper:
+              the entrance animation owns `transform` there (fill: both keeps
+              holding it after it finishes) and would swallow the drift. */}
           <div className="hero-fade lg:col-span-5" style={hd(300)}>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div data-parallax="0.05" className="grid grid-cols-2 gap-3 sm:gap-4">
               {heroCats.map((cat, i) => {
                 const img = getCategoryHeroImage(cat);
                 return (
@@ -510,6 +516,7 @@ function CtaBanner() {
   return (
     <section className="relative overflow-hidden bg-brand-700">
       <div
+        data-parallax="0.08"
         className="stripes-move pointer-events-none absolute inset-0 opacity-10"
         style={{
           backgroundImage:

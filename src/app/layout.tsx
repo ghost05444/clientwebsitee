@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MobileContactBar } from "@/components/MobileContactBar";
 import { Reveal } from "@/components/Reveal";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -112,6 +113,7 @@ export default function RootLayout({
         <MobileContactBar />
 
         <Reveal />
+        <SmoothScroll />
 
         <script
           type="application/ld+json"
