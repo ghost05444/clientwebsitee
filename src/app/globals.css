@@ -711,6 +711,115 @@
     }
   }
 
+  /* ---- Photograph scrim -------------------------------------------------
+     Direction has to change with the viewport. A left-weighted horizontal
+     gradient protects a headline sitting in the left column on desktop, but on
+     a phone the copy spans the full width, so that same gradient just darkens
+     the entire frame and the photograph disappears. Narrow viewports get a
+     vertical scrim instead: heavy behind the text at the top, clearing toward
+     the bottom so the fire is actually visible. */
+  .scrim-left {
+    background: linear-gradient(
+      180deg,
+      rgb(8 11 15 / 0.92) 0%,
+      rgb(8 11 15 / 0.82) 46%,
+      rgb(8 11 15 / 0.5) 72%,
+      rgb(8 11 15 / 0.34) 100%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    .scrim-left {
+      background: linear-gradient(
+        100deg,
+        rgb(8 11 15 / 0.95) 0%,
+        rgb(8 11 15 / 0.88) 32%,
+        rgb(8 11 15 / 0.55) 60%,
+        rgb(8 11 15 / 0.32) 100%
+      );
+    }
+  }
+
+  .scrim-center {
+    background: linear-gradient(
+      180deg,
+      rgb(8 11 15 / 0.72) 0%,
+      rgb(8 11 15 / 0.6) 45%,
+      rgb(8 11 15 / 0.85) 100%
+    );
+  }
+
+  /* ---- Hero photograph: slow Ken Burns drift ---------------------------
+     Deliberately a CSS animation on the image itself rather than a
+     scroll-linked transform. Scroll-linked parallax is skipped on touch (it
+     fights compositor scrolling), which left phones with a completely static
+     hero — this runs everywhere, costs one composited layer, and gives the
+     photograph life before the user has scrolled at all.
+
+     `scale(1.12)` is the resting state, so the pan never exposes an edge. */
+  .ken-burns {
+    animation: ken-burns 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  @keyframes ken-burns {
+    from {
+      transform: scale(1.12) translate3d(0, 0, 0);
+    }
+
+    to {
+      transform: scale(1.2) translate3d(-2.2%, -1.4%, 0);
+    }
+  }
+
+  /* A slow band of light crossing the scrim, like flame-light moving over a
+     surface. Very low contrast — it should register as life, not as a swipe. */
+  .light-sweep::after {
+    content: "";
+    position: absolute;
+    inset: -20% -60%;
+    pointer-events: none;
+    background: linear-gradient(
+      104deg,
+      transparent 38%,
+      rgb(255 150 40 / 0.11) 48%,
+      rgb(255 190 90 / 0.05) 54%,
+      transparent 64%
+    );
+    animation: light-sweep 13s ease-in-out infinite;
+  }
+
+  @keyframes light-sweep {
+    0%,
+    100% {
+      transform: translateX(-38%);
+      opacity: 0;
+    }
+
+    45% {
+      opacity: 1;
+    }
+
+    50% {
+      transform: translateX(38%);
+    }
+
+    55% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ken-burns {
+      animation: none;
+      transform: scale(1.12);
+    }
+
+    .light-sweep::after {
+      display: none;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .heat-pulse {
       animation: heat-breathe 7s ease-in-out infinite alternate;

@@ -32,7 +32,11 @@ export function PhotoBackdrop({
   const src = (w: 800 | 1600 | 2400) => `/photo/${name}-${w}.webp`;
 
   return (
-    <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
+    <div
+      data-parallax="0.08"
+      className={`light-sweep pointer-events-none absolute inset-0 overflow-hidden ${className}`}
+      aria-hidden="true"
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src(1600)}
@@ -44,21 +48,16 @@ export function PhotoBackdrop({
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
         fetchPriority={priority ? "high" : "auto"}
-        data-parallax="0.08"
-        className="h-full w-full scale-110 object-cover"
+        /* Ken Burns runs on every device, including touch where the
+           scroll-linked parallax is skipped. The two compose: parallax
+           translates the wrapper, this scales and pans the image. */
+        className="ken-burns h-full w-full object-cover"
         style={{ objectPosition: position }}
       />
 
-      {/* Scrim 1 — directional, protects the copy. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            focus === "left"
-              ? "linear-gradient(100deg, rgb(8 11 15 / 0.95) 0%, rgb(8 11 15 / 0.88) 32%, rgb(8 11 15 / 0.55) 60%, rgb(8 11 15 / 0.35) 100%)"
-              : "linear-gradient(180deg, rgb(8 11 15 / 0.72) 0%, rgb(8 11 15 / 0.6) 45%, rgb(8 11 15 / 0.85) 100%)",
-        }}
-      />
+      {/* Scrim 1 — protects the copy. Direction is viewport-dependent; see
+          `.scrim-left` in globals.css. */}
+      <div className={`absolute inset-0 ${focus === "left" ? "scrim-left" : "scrim-center"}`} />
 
       {/* Scrim 2 — grounds the bottom edge so the section can hand off to the
           next one without a hard seam. */}

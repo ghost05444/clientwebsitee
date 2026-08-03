@@ -37,7 +37,20 @@ export function Reveal() {
           observer.unobserve(entry.target);
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+      /*
+       * Fire slightly *before* an element reaches the viewport, not after.
+       *
+       * The previous `-8%` bottom margin required the element to be 8% inside
+       * the viewport first, so on a phone — where a card can occupy most of the
+       * screen — content was visibly popping in after it had already been
+       * scrolled to. A positive bottom margin starts the transition while the
+       * element is still just below the fold, so it arrives already settled.
+       *
+       * `threshold: 0` because with a positive rootMargin the intersection is
+       * with the *expanded* box; asking for 5% of a tall element on top of that
+       * pushes the trigger back out again.
+       */
+      { rootMargin: "0px 0px 12% 0px", threshold: 0 },
     );
 
     /**
@@ -162,11 +175,21 @@ export function Reveal() {
 
   /* ---- 4. Parallax + scroll velocity ----------------------------------- */
   useEffect(() => {
-    // Parallax is decoration that costs a transform every frame. Touch
-    // platforms scroll on the compositor and reduced-motion users opted out,
-    // so neither gets the listener at all.
+    // Reduced-motion users opted out; everyone else gets parallax.
+    //
+    // Touch was excluded here originally, on the theory that compositor
+    // scrolling made it too expensive. That left phones with no scroll motion
+    // whatsoever — the single biggest reason the site felt dead on mobile. The
+    // work is a handful of transform writes inside one rAF, which phones
+    // handle comfortably; what actually matters is that the reads are batched
+    // and nothing here touches layout during the scroll event, which is
+    // already the case.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    // Coarse pointers get a gentler factor: the same displacement reads as
+    // much stronger on a short viewport, and overshoot exposes element edges.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    const damping = touch ? 0.55 : 1;
 
     type Target = {
       el: HTMLElement;
@@ -241,7 +264,7 @@ export function Reveal() {
         if (Math.abs(offset) > viewport * 1.5 + t.height / 2) continue;
         const shift = Math.max(
           -t.clamp,
-          Math.min(t.clamp, offset * t.factor),
+          Math.min(t.clamp, offset * t.factor * damping),
         );
         t.el.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`;
       }
