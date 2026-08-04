@@ -51,6 +51,20 @@ export const metadata: Metadata = {
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
   },
+  /* Cut from the brand flame in the client's own artwork by `npm run icons`,
+     replacing the Create-Next-App default. src/app/favicon.ico is the same
+     file, kept there because Next serves it at /favicon.ico for clients that
+     request the root path without reading the markup. */
+  icons: {
+    icon: [
+      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
 };
@@ -58,7 +72,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0e141c",
+  themeColor: "#0e0a0a",
 };
 
 /** LocalBusiness schema — helps the shop surface in local/map search. */
