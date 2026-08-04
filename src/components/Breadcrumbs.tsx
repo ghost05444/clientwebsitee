@@ -1,4 +1,5 @@
 import { Link } from "./Link";
+import { jsonLd } from "@/lib/jsonLd";
 import { site } from "@/lib/site";
 
 export type Crumb = { label: string; href?: string };
@@ -72,7 +73,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
     </>
   );

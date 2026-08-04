@@ -6,7 +6,6 @@ import { ProductImage } from "@/components/ProductImage";
 import { HeroShowcase } from "@/components/HeroShowcase";
 import { HeroBanner } from "@/components/HeroBanner";
 import { CountUp } from "@/components/CountUp";
-import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
 import { EmberField } from "@/components/EmberField";
 import { WhatsAppIcon } from "@/components/Header";

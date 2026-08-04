@@ -30,9 +30,51 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# Banner artwork and icons are equally stable.
+[[headers]]
+  for = "/banner/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/bg/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+    # Nothing here needs a camera, microphone, location or payment API. Denying
+    # them means a future dependency cannot quietly start asking.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()"
+
+    # Two years, subdomains included. Only meaningful once the custom domain is
+    # live and serving HTTPS everywhere — Netlify does that by default.
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+    # Content-Security-Policy, scoped to what the site actually loads:
+    #
+    #   default 'none'  deny by default, then allow only what is needed
+    #   script  'self' + 'unsafe-inline'
+    #                   Next inlines its bootstrap and the JSON-LD blocks.
+    #                   A nonce is the better answer but is impossible on a
+    #                   static export — there is no server to mint one per
+    #                   request. The JSON-LD is escaped at the source instead
+    #                   (see src/lib/jsonLd.ts), which is what actually closes
+    #                   the injection path here.
+    #   style   'self' + 'unsafe-inline'
+    #                   Tailwind ships a stylesheet, but Next and a handful of
+    #                   components set inline style attributes.
+    #   img     'self' + data: (inline SVG noise texture) + blob:
+    #   font    'self'  next/font self-hosts; nothing is fetched from Google.
+    #   connect 'self'  the search index fetch and the Netlify Forms POST.
+    #   frame   the Maps embed on /contact, and nothing else.
+    #   form-action 'self'
+    #                   Netlify Forms posts back to the same origin. This stops
+    #                   an injected form from exfiltrating to a third party.
+    #   frame-ancestors 'none'
+    #                   Replaces X-Frame-Options, which CSP supersedes.
+    Content-Security-Policy = "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com; form-action 'self'; base-uri 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; upgrade-insecure-requests"

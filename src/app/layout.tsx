@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { jsonLd } from "@/lib/jsonLd";
 import { Inter, Barlow_Condensed } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -137,7 +138,7 @@ export default function RootLayout({
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(orgSchema) }}
         />
       </body>
     </html>

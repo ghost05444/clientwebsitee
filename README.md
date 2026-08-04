@@ -105,9 +105,18 @@ Currently configured:
 | `npm run images`     | Downloads product images, emits 400w/900w WebP into `public/media/`      |
 | `npm run datasheets` | Mirrors datasheet PDFs into `public/datasheets/`                         |
 | `npm run mosaics`    | Bakes the blurred product-mosaic backdrop textures into public/bg/ |
+| `npm run banner`     | Imports the client's hero artwork + logo lockup into `public/banner/`    |
+| `npm run icons`      | Cuts the favicon set from the brand flame                               |
 | `npm run qa`         | Playwright sweep: overflow, alt text, tap targets, console errors, links |
 | `npm run ix`         | Interaction tests: drawer, search, filters, form validation              |
 | `npm run crawl`      | Requests all 919 routes, fails on any non-200                            |
+| `npm run diagnose:motion` | Reports which motion actually runs, per device class               |
+| `npm run audit:sheets`    | Contact sheets of every catalogue image, for the branding audit    |
+| `npm run audit:images`    | OCR pass over the catalogue looking for the old supplier's logo    |
+| `npm run audit:report`    | Merges those signals into `BRANDED-IMAGES.md`                      |
+
+`banner`, `icons` and the `audit:*` scripts read source files from the client's
+download folder; pass a directory as the first argument to point them elsewhere.
 
 `data`, `images` and `datasheets` are resumable — re-running skips work already
 done.
@@ -171,6 +180,54 @@ that, run `npm run datasheets` before deploying and accept the size.
 
 If you skip the step entirely, the site builds and works — product pages simply
 omit the datasheet button.
+
+---
+
+## Security
+
+Headers live in [`netlify.toml`](netlify.toml) and apply to every response:
+a scoped **Content-Security-Policy**, **HSTS** (2 years, subdomains, preload),
+**Permissions-Policy** denying camera/mic/geolocation/payment, `nosniff`, and
+`strict-origin-when-cross-origin`.
+
+The CSP is `default-src 'none'` with allowances only for what the site actually
+loads. Two notes on it:
+
+- `script-src` includes `'unsafe-inline'`. A nonce would be stronger, but a
+  static export has no server to mint one per request. The injection path that
+  actually mattered is closed at the source instead — see below.
+- `frame-src` allows exactly one origin, `https://www.google.com`, for the map
+  embed on the contact page. `form-action 'self'` stops an injected form from
+  posting anywhere but back to Netlify.
+
+Verified with the real policy applied: **0 violations** across the home,
+category, product, contact and about pages, and all 18 interaction checks still
+pass — so the search-index fetch and the Netlify Forms POST are both within it.
+
+### JSON-LD escaping
+
+Structured data is built from product names and spec values scraped from a
+third-party catalogue. `JSON.stringify` does **not** escape `<`:
+
+```js
+JSON.stringify("</script><img onerror=…>")   // -> "</script><img onerror=…>"
+```
+
+Injected with `dangerouslySetInnerHTML`, that closes the script element early
+and everything after it parses as HTML. [`src/lib/jsonLd.ts`](src/lib/jsonLd.ts)
+escapes `<`, `>`, `&` and the U+2028/U+2029 line terminators as unicode
+sequences — semantically identical JSON, impossible to break out of. Every
+`ld+json` block on the site goes through it. Verified in the built output: no
+block contains a raw `<`, and all parse.
+
+### Known advisories
+
+`npm audit` reports 3 high-severity issues, in `postcss` and `sharp`. Both are
+**build-time only** — CSS processing and image conversion. Neither reaches the
+browser: the site is a static export, and grepping the shipped bundles for them
+returns only the English word "sharp" inside product copy. `npm audit fix
+--force` wants to change Next's major version, which is not a trade worth
+making for a build-time dependency. Re-check when Next ships an update.
 
 ---
 

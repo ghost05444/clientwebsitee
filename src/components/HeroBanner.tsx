@@ -69,7 +69,6 @@ export function HeroBanner() {
             the 2560px landscape file. */}
         <picture>
           <source media="(min-width: 768px)" srcSet={SCENE_LANDSCAPE} sizes="100vw" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/banner/scene-portrait-900.webp"
             srcSet={SCENE_PORTRAIT}

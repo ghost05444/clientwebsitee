@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { jsonLd } from "@/lib/jsonLd";
 import type { Metadata } from "next";
 import { Link } from "@/components/Link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -266,7 +267,7 @@ export default async function ArticlePage({
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(articleSchema) }}
       />
     </>
   );

@@ -11,7 +11,7 @@
  *
  * Run with: npm run audit:images
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createWorker } from "tesseract.js";

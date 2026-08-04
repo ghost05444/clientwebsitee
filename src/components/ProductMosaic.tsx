@@ -36,8 +36,8 @@ export function ProductMosaic({
           "radial-gradient(ellipse 95% 85% at 50% 45%, black 10%, transparent 80%)",
       }}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        // eslint-disable-next-line @next/next/no-img-element
         src={`/bg/mosaic-${variant}.webp`}
         alt=""
         width={1280}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { jsonLd } from "@/lib/jsonLd";
 import type { Metadata } from "next";
 import { Link } from "@/components/Link";
 import { PageHero } from "@/components/PageHero";
@@ -143,7 +144,7 @@ export default async function SubcategoryPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLd({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             name: `${sub.name} — ${parent.name}`,

@@ -50,6 +50,13 @@ export function HorizontalShowcase({ panels }: { panels: ShowcasePanel[] }) {
   useEffect(() => {
     if (!enabled) return;
 
+    /*
+     * Captured on mount rather than read as `trackRef.current` in cleanup.
+     * By the time cleanup runs the ref may already point elsewhere (or at
+     * null), so the reset below would either miss the element it was meant to
+     * clear or throw — leaving a stale `transform` on the track.
+     */
+    const track = trackRef.current;
     let raf = 0;
 
     const update = () => {
@@ -88,7 +95,7 @@ export function HorizontalShowcase({ panels }: { panels: ShowcasePanel[] }) {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (raf) cancelAnimationFrame(raf);
-      if (trackRef.current) trackRef.current.style.transform = "";
+      if (track) track.style.transform = "";
     };
   }, [enabled]);
 

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { jsonLd } from "@/lib/jsonLd";
 import type { Metadata } from "next";
 import { Link } from "@/components/Link";
 import { PageHero } from "@/components/PageHero";
@@ -124,7 +125,7 @@ export default async function CategoryPage({
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(collectionSchema) }}
       />
     </>
   );
