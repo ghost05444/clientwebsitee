@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Section, SectionHeader } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
+import { HeroShowcase } from "@/components/HeroShowcase";
 import { CountUp } from "@/components/CountUp";
 import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
@@ -112,7 +113,7 @@ function Hero() {
 
       <div className="container-page relative z-[2] py-16 sm:py-20 lg:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-7">
+          <div className="min-w-0 lg:col-span-7">
             <p
               className="hero-fade inline-flex items-center gap-2 rounded-full border border-flame-700/40 bg-ink-900/70 px-3 py-1.5 text-xs font-medium text-ink-200 backdrop-blur-sm"
               style={hd(0)}
@@ -222,61 +223,10 @@ function Hero() {
             </dl>
           </div>
 
-          {/* Category preview tiles — real product imagery, cursor tilt + glow.
-              Parallax sits on the inner grid, not the `.hero-fade` wrapper:
-              the entrance animation owns `transform` there (fill: both keeps
-              holding it after it finishes) and would swallow the drift. */}
-          <div className="hero-fade lg:col-span-5" style={hd(300)}>
-            <div data-parallax="0.05" className="grid grid-cols-2 gap-3 sm:gap-4">
-              {heroCats.map((cat, i) => {
-                const img = getCategoryHeroImage(cat);
-                return (
-                  <Link
-                    key={cat.slug}
-                    href={`/products/${cat.slug}`}
-                    className="tilt spot spot-dark group relative isolate flex flex-col overflow-hidden rounded-2xl border border-white/12 bg-white/[0.06] p-3 shadow-[0_8px_32px_-12px_rgb(0_0_0/0.7)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-flame-400/50 hover:bg-white/[0.1] hover:shadow-[0_18px_44px_-14px_rgb(244_95_7/0.45)] sm:p-3.5"
-                  >
-                    {/* Ember wash that lifts on hover, behind the content. */}
-                    <span
-                      className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-flame-500/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      aria-hidden="true"
-                    />
-
-                    {/* The catalogue is shot on white, so the product needs a
-                        light plate to read against a dark glass card. A radial
-                        rather than a flat fill keeps it from looking like a
-                        pasted-on box. */}
-                    <div
-                      className="rounded-xl p-2.5"
-                      style={{
-                        background:
-                          "radial-gradient(120% 100% at 50% 0%, #fff 0%, #f3f5f8 55%, #e6eaf0 100%)",
-                      }}
-                    >
-                      <ProductImage
-                        image={img}
-                        priority={i < 2}
-                        sizes="(min-width: 1024px) 200px, 40vw"
-                        fallbackLabel={cat.name}
-                        className="drop-shadow-[0_6px_10px_rgb(14_20_28/0.18)] transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-[1.07]"
-                      />
-                    </div>
-
-                    <p className="mt-3 font-display text-[15px] font-bold leading-tight text-white transition-colors group-hover:text-flame-300">
-                      {cat.name}
-                    </p>
-
-                    <p className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-ink-400">
-                      <span
-                        className="h-1 w-1 rounded-full bg-flame-500"
-                        aria-hidden="true"
-                      />
-                      {cat.count} products
-                    </p>
-                  </Link>
-                );
-              })}
-            </div>
+          {/* Equipment showcase — snap rail on phones, staggered depth
+              stack on desktop. See HeroShowcase for why they differ. */}
+          <div className="hero-fade min-w-0 lg:col-span-5" style={hd(300)}>
+            <HeroShowcase categories={heroCats} />
           </div>
         </div>
       </div>
