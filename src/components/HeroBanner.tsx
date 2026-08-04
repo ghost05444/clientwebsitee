@@ -93,14 +93,14 @@ export function HeroBanner() {
             Vertical on phones, horizontal on desktop — matching where the
             empty space actually is. */}
         <div
-          className="absolute inset-0 bg-gradient-to-b from-[rgb(8_5_5/0.85)] via-[rgb(8_5_5/0.4)] to-transparent md:bg-gradient-to-r md:from-[rgb(8_5_5/0.9)] md:via-[rgb(8_5_5/0.5)] md:to-transparent"
+          className="absolute inset-0 bg-gradient-to-b from-[rgb(6_4_4/0.8)] via-[rgb(6_4_4/0.3)] to-transparent md:bg-gradient-to-r md:from-[rgb(6_4_4/0.85)] md:via-[rgb(6_4_4/0.35)] md:to-transparent"
           aria-hidden="true"
         />
 
         {/* --- Type, composed into the reserved zone ---------------------- */}
         <div className="absolute inset-0">
-          <div className="container-page flex h-full flex-col justify-start pt-[5cqh] md:justify-center md:pt-0">
-            <div className="w-full md:max-w-[44%]">
+          <div className="container-page flex h-full flex-col justify-start pt-[4cqh] md:justify-center md:pt-0">
+            <div className="w-full md:max-w-[35%]">
               {/* The wordmark is genuinely graphical — custom lettering, swoosh
                   and mascot — so it stays an image. Transparency is baked into
                   the PNG at build time (luminance -> alpha) rather than done
@@ -119,12 +119,12 @@ export function HeroBanner() {
                 loading="eager"
                 decoding="sync"
                 fetchPriority="high"
-                className="hero-fade block h-[15cqh] w-auto md:h-[26cqh]"
+                className="hero-fade block h-[11.5cqh] w-auto md:h-[24cqh]"
                 style={{ ["--hd" as string]: "0ms" }}
               />
 
               <h2
-                className="hero-fade mt-[2cqh] font-display text-[5.9cqh] font-bold uppercase leading-[1.02] tracking-[-0.01em] text-white md:mt-[3cqh] md:text-[12cqh]"
+                className="hero-fade mt-[1.6cqh] font-display text-[4.6cqh] font-bold uppercase leading-[1.02] tracking-[-0.01em] text-white md:mt-[3cqh] md:text-[11cqh]"
                 style={{ ["--hd" as string]: "120ms" }}
               >
                 Protecting
@@ -138,7 +138,7 @@ export function HeroBanner() {
                   In the original artwork they were baked in at a size that
                   became unreadable once the image scaled down. */}
               <ul
-                className="hero-fade mt-[2.4cqh] grid max-w-[92%] grid-cols-4 gap-[2%] md:mt-[4cqh]"
+                className="hero-fade mt-[2cqh] grid max-w-[92%] grid-cols-4 gap-[2%] md:mt-[4cqh]"
                 style={{ ["--hd" as string]: "260ms" }}
               >
                 {FEATURES.map((feature) => (
@@ -146,10 +146,10 @@ export function HeroBanner() {
                     key={feature.label.join(" ")}
                     className="flex flex-col items-center text-center"
                   >
-                    <span className="flex items-center justify-center rounded-full border border-brand-600/70 bg-[rgb(8_5_5/0.55)] p-[1.4cqh] shadow-[0_0_14px_-2px_rgb(220_31_31/0.65)] md:p-[2cqh]">
+                    <span className="flex items-center justify-center rounded-full border border-brand-600/70 bg-[rgb(8_5_5/0.55)] p-[1.1cqh] shadow-[0_0_14px_-2px_rgb(220_31_31/0.65)] md:p-[2cqh]">
                       <svg
                         viewBox="0 0 24 24"
-                        className="h-[2.6cqh] w-[2.6cqh] text-brand-500 md:h-[4cqh] md:w-[4cqh]"
+                        className="h-[2.1cqh] w-[2.1cqh] text-brand-500 md:h-[4cqh] md:w-[4cqh]"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={1.8}
@@ -161,7 +161,7 @@ export function HeroBanner() {
                       </svg>
                     </span>
 
-                    <span className="mt-[1cqh] font-display text-[1.7cqh] font-semibold uppercase leading-[1.2] tracking-[0.05em] text-white drop-shadow-[0_1px_6px_rgb(0_0_0/0.9)] md:text-[2.4cqh]">
+                    <span className="mt-[1cqh] font-display text-[1.35cqh] font-semibold uppercase leading-[1.2] tracking-[0.05em] text-white drop-shadow-[0_1px_6px_rgb(0_0_0/0.9)] md:text-[2.4cqh]">
                       {feature.label[0]}
                       <br />
                       {feature.label[1]}

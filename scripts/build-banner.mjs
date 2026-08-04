@@ -30,12 +30,12 @@ mkdirSync(OUT, { recursive: true });
 const SCENES = [
   {
     name: "scene-landscape",
-    file: "cf0107ae-1e77-4756-b2ca-296247b4423b.png",
+    file: "c3b113b4-50dc-47ac-ad03-de01d93046c3.png",
     widths: [1280, 1920, 2560],
   },
   {
     name: "scene-portrait",
-    file: "301f256a-8622-4170-9f28-01e15ec1e975.png",
+    file: "613ce9ca-e975-4cfb-a09e-2848522812d4.png",
     widths: [640, 900, 1200],
   },
 ];
