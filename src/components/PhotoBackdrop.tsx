@@ -1,3 +1,4 @@
+import { HeroPhotoRotator, type HeroFrame } from "./HeroPhotoRotator";
 /**
  * Full-bleed photographic backdrop with a legibility scrim.
  *
@@ -12,7 +13,9 @@
 
 type Props = {
   /** Basename in /public/photo (without the -800/-1600/-2400 suffix). */
-  name: string;
+  name?: string;
+  /** Cross-fading frames. Takes precedence over `name` when supplied. */
+  frames?: HeroFrame[];
   /** Which side the copy sits on; the scrim is heaviest there. */
   focus?: "left" | "center";
   /** Object-position, for steering the crop at narrow widths. */
@@ -24,6 +27,7 @@ type Props = {
 
 export function PhotoBackdrop({
   name,
+  frames,
   focus = "left",
   position = "center",
   className = "",
@@ -37,23 +41,27 @@ export function PhotoBackdrop({
       className={`light-sweep pointer-events-none absolute inset-0 overflow-hidden ${className}`}
       aria-hidden="true"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src(1600)}
-        srcSet={`${src(800)} 800w, ${src(1600)} 1600w, ${src(2400)} 2400w`}
-        sizes="100vw"
-        alt=""
-        width={2400}
-        height={1600}
-        loading={priority ? "eager" : "lazy"}
-        decoding={priority ? "sync" : "async"}
-        fetchPriority={priority ? "high" : "auto"}
-        /* Ken Burns runs on every device, including touch where the
-           scroll-linked parallax is skipped. The two compose: parallax
-           translates the wrapper, this scales and pans the image. */
-        className="ken-burns h-full w-full object-cover"
-        style={{ objectPosition: position }}
-      />
+      {frames?.length ? (
+        <HeroPhotoRotator frames={frames} />
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={src(1600)}
+          srcSet={`${src(800)} 800w, ${src(1600)} 1600w, ${src(2400)} 2400w`}
+          sizes="100vw"
+          alt=""
+          width={2400}
+          height={1600}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "auto"}
+          /* Ken Burns runs on every device, including touch where the
+             scroll-linked parallax is skipped. The two compose: parallax
+             translates the wrapper, this scales and pans the image. */
+          className="ken-burns h-full w-full object-cover"
+          style={{ objectPosition: position }}
+        />
+      )}
 
       {/* Scrim 1 — protects the copy. Direction is viewport-dependent; see
           `.scrim-left` in globals.css. */}

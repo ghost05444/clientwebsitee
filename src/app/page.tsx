@@ -68,7 +68,15 @@ function Hero() {
           All decorative, all non-interactive. The scrim on the photograph is
           what keeps the copy legible; nothing here is load-bearing for
           contrast on its own. */}
-      <PhotoBackdrop name="hero-firefighter" focus="left" position="70% center" priority />
+      <PhotoBackdrop
+        focus="left"
+        priority
+        frames={[
+          { name: "hero-firefighter", position: "70% center" },
+          { name: "interior-burn", position: "55% center" },
+          { name: "crew-aluminised", position: "60% center" },
+        ]}
+      />
 
       <div
         data-parallax="0.06"
@@ -226,22 +234,43 @@ function Hero() {
                   <Link
                     key={cat.slug}
                     href={`/products/${cat.slug}`}
-                    className="tilt spot spot-dark group relative overflow-hidden rounded-2xl border border-ink-800 bg-ink-900 p-4 transition-colors hover:border-ink-600"
+                    className="tilt spot spot-dark group relative isolate flex flex-col overflow-hidden rounded-2xl border border-white/12 bg-white/[0.06] p-3 shadow-[0_8px_32px_-12px_rgb(0_0_0/0.7)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-flame-400/50 hover:bg-white/[0.1] hover:shadow-[0_18px_44px_-14px_rgb(244_95_7/0.45)] sm:p-3.5"
                   >
-                    <div className="rounded-xl bg-white/95 p-2">
+                    {/* Ember wash that lifts on hover, behind the content. */}
+                    <span
+                      className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-flame-500/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      aria-hidden="true"
+                    />
+
+                    {/* The catalogue is shot on white, so the product needs a
+                        light plate to read against a dark glass card. A radial
+                        rather than a flat fill keeps it from looking like a
+                        pasted-on box. */}
+                    <div
+                      className="rounded-xl p-2.5"
+                      style={{
+                        background:
+                          "radial-gradient(120% 100% at 50% 0%, #fff 0%, #f3f5f8 55%, #e6eaf0 100%)",
+                      }}
+                    >
                       <ProductImage
                         image={img}
                         priority={i < 2}
                         sizes="(min-width: 1024px) 200px, 40vw"
                         fallbackLabel={cat.name}
-                        className="transition-transform duration-300 group-hover:scale-105"
+                        className="drop-shadow-[0_6px_10px_rgb(14_20_28/0.18)] transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-[1.07]"
                       />
                     </div>
 
-                    <p className="mt-3 font-display text-sm font-semibold leading-tight text-white">
+                    <p className="mt-3 font-display text-[15px] font-bold leading-tight text-white transition-colors group-hover:text-flame-300">
                       {cat.name}
                     </p>
-                    <p className="mt-0.5 text-xs text-ink-400">
+
+                    <p className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-ink-400">
+                      <span
+                        className="h-1 w-1 rounded-full bg-flame-500"
+                        aria-hidden="true"
+                      />
                       {cat.count} products
                     </p>
                   </Link>

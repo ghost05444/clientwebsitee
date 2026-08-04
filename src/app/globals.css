@@ -422,15 +422,30 @@
     }
   }
 
-  /* ---- Hero entrance — plays on first paint, pure CSS, no JS needed ----- */
-  @media (prefers-reduced-motion: no-preference) {
-    .hero-line {
-      display: block;
-      overflow: hidden;
-    }
+  /* ---- Hero entrance ----------------------------------------------------
+     LAYOUT LIVES OUTSIDE THE MOTION QUERY. These two rules are structural —
+     they are what puts each headline phrase on its own line — and they must
+     apply no matter what the user's motion preference is.
 
+     They used to sit inside `prefers-reduced-motion: no-preference`, so anyone
+     with reduced motion enabled (which on Windows is simply "Show animations
+     in Windows" being off — a very common setting, and not a disability
+     signal at all) got `display: inline` instead. The three phrases collapsed
+     onto one line and ran together: "Safety equipmentthat comes homewith…".
+
+     Only the transform and the animation below are motion, and only those are
+     gated. */
+  .hero-line {
+    display: block;
+    overflow: hidden;
+  }
+
+  .hero-line > span {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
     .hero-line > span {
-      display: block;
       transform: translateY(115%);
       animation: hero-rise 0.9s var(--ease-out-quint) both;
       animation-delay: var(--hd, 0ms);
