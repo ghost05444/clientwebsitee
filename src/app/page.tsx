@@ -9,7 +9,6 @@ import { CountUp } from "@/components/CountUp";
 import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
 import { EmberField } from "@/components/EmberField";
-import { PhotoBackdrop } from "@/components/PhotoBackdrop";
 import { WhatsAppIcon } from "@/components/Header";
 import {
   getMainCategories,

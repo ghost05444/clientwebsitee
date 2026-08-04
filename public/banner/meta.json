@@ -1,20 +1,30 @@
 {
-  "hero-portrait": {
-    "width": 1024,
-    "height": 1536,
+  "scene-landscape": {
+    "width": 2048,
+    "height": 768,
+    "widths": [
+      1280,
+      1920,
+      2560
+    ]
+  },
+  "scene-portrait": {
+    "width": 1122,
+    "height": 1402,
     "widths": [
       640,
       900,
       1200
     ]
   },
-  "hero-landscape": {
-    "width": 1702,
-    "height": 924,
+  "logoLockup": {
+    "left": 130,
+    "top": 62,
+    "width": 706,
+    "height": 330,
     "widths": [
-      1200,
-      1700,
-      2400
+      420,
+      700
     ]
   }
 }
