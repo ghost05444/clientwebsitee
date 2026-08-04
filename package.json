@@ -19,7 +19,8 @@
     "photos": "node scripts/fetch-photos.mjs",
     "audit:sheets": "node scripts/build-image-sheets.mjs",
     "audit:report": "node scripts/build-branded-report.mjs",
-    "diagnose:motion": "node scripts/diagnose-motion.mjs"
+    "diagnose:motion": "node scripts/diagnose-motion.mjs",
+    "banner": "node scripts/build-banner.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.25",

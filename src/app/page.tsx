@@ -4,6 +4,7 @@ import { Section, SectionHeader } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
 import { HeroShowcase } from "@/components/HeroShowcase";
+import { HeroBanner } from "@/components/HeroBanner";
 import { CountUp } from "@/components/CountUp";
 import { RotatingWord } from "@/components/RotatingWord";
 import { KineticMarquee } from "@/components/KineticMarquee";
@@ -59,60 +60,70 @@ function Hero() {
   const heroCats = categories.slice(0, 4);
 
   return (
-    <section className="grain relative overflow-hidden bg-ink-950">
-      {/* --- Depth stack, back to front -------------------------------------
-          1. photograph      — firefighter at a live burn, under a heavy scrim
-          2. blueprint grid  — technical structure
-          3. drifting glows  — colour depth
-          4. heat wash       — ember light rising from the bottom edge
-          5. ember field     — live particles (canvas, motion-gated)
-          All decorative, all non-interactive. The scrim on the photograph is
-          what keeps the copy legible; nothing here is load-bearing for
-          contrast on its own. */}
-      <PhotoBackdrop
-        focus="left"
-        priority
-        frames={[
-          { name: "hero-firefighter", position: "70% center" },
-          { name: "interior-burn", position: "55% center" },
-          { name: "crew-aluminised", position: "60% center" },
-        ]}
-      />
-
+    /* Background is sampled from the artwork's own edge (rgb(41,23,22)), not
+         a theme neutral. The banners are letterboxed rather than cropped —
+         cropping would cut the client's logo and headline — and matching the
+         fill to the artwork makes those bars indistinguishable from it at any
+         viewport ratio. */
+    <section
+      className="grain relative overflow-hidden"
+      style={{ backgroundColor: "rgb(41 23 22)" }}
+    >
+      {/* Ambient depth behind the artwork. The banner's own background is
+          near-black, so these read through its edges and stop the panel
+          sitting on the page as a flat rectangle. */}
       <div
-        data-parallax="0.06"
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-          maskImage:
-            "radial-gradient(ellipse 85% 75% at 55% 30%, black 25%, transparent 78%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 85% 75% at 55% 30%, black 25%, transparent 78%)",
-        }}
+        data-parallax="-0.1"
+        className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full glow"
+        style={{ "--glow-color": "rgb(220 31 31 / 0.22)" } as React.CSSProperties}
         aria-hidden="true"
       />
       <div
-        data-parallax="-0.12"
-        className="orb pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full glow" style={{ "--glow-color": "rgb(220 31 31 / 0.25)" } as React.CSSProperties}
-        aria-hidden="true"
-      />
-      <div
-        data-parallax="-0.08"
-        className="orb orb-slow pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] rounded-full glow" style={{ "--glow-color": "rgb(244 95 7 / 0.14)" } as React.CSSProperties}
+        data-parallax="-0.06"
+        className="orb orb-slow pointer-events-none absolute -bottom-40 -left-36 h-[28rem] w-[28rem] rounded-full glow"
+        style={{ "--glow-color": "rgb(244 95 7 / 0.16)" } as React.CSSProperties}
         aria-hidden="true"
       />
 
-      <div
-        className="heat-base heat-pulse pointer-events-none absolute inset-x-0 bottom-0 h-[62%]"
-        aria-hidden="true"
-      />
+      {/* --- Band 1: the client's artwork ---------------------------------
+          Shown complete, never cropped. The artwork already carries the
+          wordmark, the "Protecting what matters" headline and the four
+          feature labels, so cropping it would cut the client's own copy —
+          and overlaying our headline on it would collide with theirs. Hence
+          `object-contain` and a height cap rather than `cover`, and hence
+          our copy lives in band 2 below rather than on top.
 
-      <EmberField className="z-[1]" density={2.4} max={80} />
+          Two separate artworks, art-directed: portrait stacks the elements
+          for a phone, landscape sets them side by side. `<picture>` picks
+          one at the source level, so a phone never downloads the desktop
+          file. */}
+      <div className="relative">
+        <HeroBanner />
 
-      <div className="container-page relative z-[2] py-16 sm:py-20 lg:py-28">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+        {/* Embers drift over the artwork. Low density — this sits on top of
+            the client's own composition and must not compete with it. */}
+        <EmberField className="z-[1]" density={1.5} max={44} />
+
+        {/* Feathers the artwork's bottom edge into the action band so the two
+            read as one section rather than an image with content under it. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-14"
+          style={{ background: "linear-gradient(to top, rgb(41 23 22), transparent)" }}
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* --- Band 2: our copy and actions ---------------------------------- */}
+      <div className="container-page relative z-[2] pb-12 pt-1 sm:pb-14 lg:pb-16">
+        {/* The visible headline is inside the artwork, which crawlers and
+            screen readers cannot read. This carries it as real text without
+            putting a second competing headline on screen. */}
+        <h1 className="sr-only">
+          Krushnam Fire — protecting what matters, everyday. Industrial safety
+          and fire protection equipment in Anjar, Kachchh.
+        </h1>
+
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
           <div className="min-w-0 lg:col-span-7">
             <p
               className="hero-fade inline-flex items-center gap-2 rounded-full border border-flame-700/40 bg-ink-900/70 px-3 py-1.5 text-xs font-medium text-ink-200 backdrop-blur-sm"
@@ -125,42 +136,19 @@ function Hero() {
               Serving Anjar, Kachchh &amp; all of Gujarat
             </p>
 
-            {/* Each line rises out of its own overflow mask, one beat apart.
-                `drop-shadow` rather than `text-shadow`: it follows the glyph
-                edges, so it lifts the type off the flames without the muddy
-                halo a blurred box shadow leaves behind. */}
-            <h1 className="mt-6 text-[2.75rem] font-bold leading-[0.98] tracking-[-0.03em] text-white [text-wrap:balance] drop-shadow-[0_2px_24px_rgb(0_0_0/0.65)] sm:text-6xl lg:text-7xl xl:text-[5rem]">
-              <span className="hero-line">
-                <span style={hd(120)}>Safety equipment</span>
-              </span>
-              <span className="hero-line">
-                <span style={hd(230)}>
-                  {/* text-brand-500 is the fallback if background-clip:text
-                      is unsupported; .text-flame paints over it. */}
-                  <span className="text-flame text-brand-500">that comes home</span>
-                </span>
-              </span>
-              <span className="hero-line">
-                <span style={hd(340)}>
-                  with{" "}
-                  <RotatingWord
-                    words={["your team.", "factories.", "refineries.", "ports."]}
-                    resting="your team."
-                  />
-                </span>
-              </span>
-            </h1>
-
             <p
-              className="hero-fade mt-7 max-w-lg text-[15px] leading-[1.7] text-ink-200/90 drop-shadow-[0_1px_10px_rgb(0_0_0/0.6)] sm:text-[17px]"
-              style={hd(430)}
+              className="hero-fade mt-5 max-w-xl text-[17px] font-medium leading-[1.55] text-white sm:text-xl"
+              style={hd(120)}
             >
               Certified head-to-toe PPE, fall protection and fire safety systems
-              from {totalProducts}+ products — backed by on-site assessment and
-              fast supply across India.
+              from{" "}
+              <span className="text-flame text-brand-500">
+                {totalProducts}+ products
+              </span>{" "}
+              — backed by on-site assessment and fast supply across India.
             </p>
 
-            <div className="hero-fade mt-8 flex flex-col gap-3 sm:flex-row" style={hd(520)}>
+            <div className="hero-fade mt-7 flex flex-col gap-3 sm:flex-row" style={hd(240)}>
               <Link href="/products" className="btn-primary px-7 text-base">
                 Browse products
               </Link>
@@ -177,8 +165,8 @@ function Hero() {
             </div>
 
             <dl
-              className="hero-fade mt-11 grid max-w-lg grid-cols-3 gap-4 border-t border-white/15 pt-7"
-              style={hd(620)}
+              className="hero-fade mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/15 pt-6"
+              style={hd(360)}
             >
               {[
                 {
@@ -223,9 +211,9 @@ function Hero() {
             </dl>
           </div>
 
-          {/* Equipment showcase — snap rail on phones, staggered depth
-              stack on desktop. See HeroShowcase for why they differ. */}
-          <div className="hero-fade min-w-0 lg:col-span-5" style={hd(300)}>
+          {/* Category entry points. The artwork shows equipment; these are the
+              navigable way in, which it cannot be. */}
+          <div className="hero-fade min-w-0 lg:col-span-5" style={hd(420)}>
             <HeroShowcase categories={heroCats} />
           </div>
         </div>

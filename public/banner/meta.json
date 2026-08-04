@@ -1,0 +1,20 @@
+{
+  "hero-portrait": {
+    "width": 1024,
+    "height": 1536,
+    "widths": [
+      640,
+      900,
+      1200
+    ]
+  },
+  "hero-landscape": {
+    "width": 1702,
+    "height": 924,
+    "widths": [
+      1200,
+      1700,
+      2400
+    ]
+  }
+}
