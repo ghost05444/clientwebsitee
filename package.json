@@ -15,10 +15,6 @@
     "ix": "node scripts/interaction-test.mjs",
     "prebuild": "node scripts/build-data.mjs && node scripts/build-mosaics.mjs",
     "mosaics": "node scripts/build-mosaics.mjs",
-    "audit:images": "node scripts/find-branded-images.mjs",
-    "audit:sheets": "node scripts/build-image-sheets.mjs",
-    "audit:report": "node scripts/build-branded-report.mjs",
-    "diagnose:motion": "node scripts/diagnose-motion.mjs",
     "banner": "node scripts/build-banner.mjs",
     "icons": "node scripts/build-icons.mjs"
   },
@@ -40,7 +36,6 @@
     "playwright": "^1.62.1",
     "sharp": "^0.35.3",
     "tailwindcss": "^4",
-    "tesseract.js": "^7.0.0",
     "typescript": "^5"
   }
 }

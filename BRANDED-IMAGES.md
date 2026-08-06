@@ -12,15 +12,23 @@ OCR was tried first and is not adequate on its own: it flagged 3 images out
 of 966 and missed helmets whose logo is plainly visible, because Tesseract
 cannot read a mark moulded into curved, glossy plastic.
 
-So the catalogue was rendered as 21 numbered contact sheets
-(`scripts/image-sheets/`) and reviewed by eye. The confirmed list below
-comes from that review. The "likely" list is every product in the source
-company's own manufactured ranges — their own goods, so they carry their own
-logo more often than not.
+So the catalogue was rendered as numbered contact sheets and reviewed by eye.
+The confirmed list below comes from that review. The "likely" list is every
+product in the source company's own manufactured ranges — their own goods, so
+they carry their own logo more often than not.
 
-**To finish the audit:** open each `sheet-NN.webp`, note the `#number`
-under any thumbnail showing the logo, and look it up in
-`scripts/image-sheets/INDEX.md`.
+**To finish the audit:** the review covered 4 of 21 sheets, so the confirmed
+list is a floor rather than a total. The remainder can be checked straight
+from the site — open each category under `/products/` and look at the
+thumbnails; anything carrying the old mark needs a replacement photograph.
+
+**To replace an image:** drop the new file into `public/media/` over the path
+named in the tables below, keeping the filename, then re-run `npm run build`.
+The `-400`/`-900` variants beside it need replacing too, or delete all three
+and re-run `npm run images` to regenerate them from the new source.
+
+The `Tile` numbers are from the original review sheets and are kept only so
+the two lists can be cross-referenced; the image path is the real identifier.
 
 ---
 

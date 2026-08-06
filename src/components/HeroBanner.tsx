@@ -113,12 +113,27 @@ export function HeroBanner() {
                 srcSet="/banner/logo-lockup-420.png 420w, /banner/logo-lockup-700.png 700w"
                 sizes="(min-width: 768px) 34vw, 70vw"
                 alt={`${site.name} — Fire Safety & Control Service`}
-                width={706}
-                height={330}
+                width={953}
+                height={352}
                 loading="eager"
                 decoding="sync"
                 fetchPriority="high"
-                className="hero-fade block h-[11.5cqh] w-auto md:h-[24cqh]"
+                /*
+                 * `object-contain` + `max-w-full` are load-bearing, not
+                 * decoration. The height is pinned in cqh while the parent
+                 * column caps width at 35%; where that cap bites, width is
+                 * clamped but height is not, and the lockup renders squashed
+                 * (measured at aspect 2.42 and 2.57 against an intrinsic
+                 * 2.70 at 768px and 1920px). `object-contain` makes it letter-
+                 * box instead of distort. The heights below are then chosen so
+                 * the cap does not bite at any breakpoint.
+                 *
+                 * `max-h` handles the far end: past ~2200px the page container
+                 * stops growing, so the 35% column stops with it, but `cqh`
+                 * keeps scaling with the frame. Without the cap the mark tries
+                 * to outgrow its column and just gains empty box.
+                 */
+                className="hero-fade block h-[13.5cqh] w-auto max-w-full object-contain md:h-[21cqh] md:max-h-[150px]"
                 style={{ ["--hd" as string]: "0ms" }}
               />
 

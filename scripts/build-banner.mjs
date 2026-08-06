@@ -42,11 +42,23 @@ const SCENES = [
 
 /**
  * The logo lockup, cropped from the client's original banner.
- * Bounds cover wordmark + swoosh + flame + tagline + mascot with a little air.
+ *
+ * These bounds are measured, not eyeballed. Thresholding the source's
+ * luminance and taking the bounding box of everything above the plate puts the
+ * artwork at x 13..953, y 53..398 — wordmark, swoosh, flame, tagline and
+ * mascot. The values below add ~6px of air on three sides.
+ *
+ * The earlier crop (x 130..835) was guessed and chopped 117px off the left and
+ * 118px off the right, cutting through the swoosh's lower-left tail and the
+ * mascot's hose and spray.
+ *
+ * The bottom is deliberately tight: the banner's baked-in "PROTECTING"
+ * headline starts at y=400, only two pixels below the mascot's boots, so any
+ * extra margin drags the top of that lettering into the lockup.
  */
 const LOGO = {
   file: "592556fd-1eb0-4db0-a636-25a940eb8e90.png",
-  extract: { left: 130, top: 62, width: 706, height: 330 },
+  extract: { left: 7, top: 47, width: 953, height: 352 },
   widths: [420, 700],
 };
 
@@ -94,10 +106,20 @@ for (const scene of SCENES) {
       const alpha = await base
         .clone()
         .greyscale()
-        // Lift mid-tones so the artwork stays fully opaque while the plate
-        // still falls to zero; without the gain, red-on-black reads as
-        // semi-transparent and the logo looks washed out.
-        .linear(2.6, -12)
+        /*
+         * Measured from the crop, not guessed. Its luminance histogram is:
+         *   L 0-19    74.5%  the black plate
+         *   L 20-60    ~4%   a faint red glow bleeding off the artwork
+         *   L 90-119  12.4%  the logo red
+         *   L 200+     ~4%   white lettering and mascot highlights
+         *
+         * The previous curve (2.6x - 12) left the plate at alpha 37 and the
+         * glow as high as 144, which composited as a red halo cut roughly to
+         * the shape of the crop. This maps L35 -> 0 and L90 -> 255, so plate
+         * and glow both vanish while the artwork stays solid and its
+         * antialiased edges keep a soft ramp.
+         */
+        .linear(4.64, -162)
         .toBuffer();
 
       await sharp(rgb)

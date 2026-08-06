@@ -110,13 +110,9 @@ Currently configured:
 | `npm run qa`         | Playwright sweep: overflow, alt text, tap targets, console errors, links |
 | `npm run ix`         | Interaction tests: drawer, search, filters, form validation              |
 | `npm run crawl`      | Requests all 919 routes, fails on any non-200                            |
-| `npm run diagnose:motion` | Reports which motion actually runs, per device class               |
-| `npm run audit:sheets`    | Contact sheets of every catalogue image, for the branding audit    |
-| `npm run audit:images`    | OCR pass over the catalogue looking for the old supplier's logo    |
-| `npm run audit:report`    | Merges those signals into `BRANDED-IMAGES.md`                      |
 
-`banner`, `icons` and the `audit:*` scripts read source files from the client's
-download folder; pass a directory as the first argument to point them elsewhere.
+`banner` and `icons` read source artwork from the client's download folder; pass
+a directory as the first argument to point them elsewhere.
 
 `data`, `images` and `datasheets` are resumable — re-running skips work already
 done.
