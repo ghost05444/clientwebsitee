@@ -434,28 +434,56 @@ function MegaColumn({ category }: { category: Category }) {
         </span>
       </Link>
 
-      <ul className="mt-2 space-y-1">
-        {category.children.slice(0, 5).map((child) => (
-          <li key={child.slug}>
-            <Link
-              href={`/products/${category.slug}/${child.slug}`}
-              className="block py-0.5 text-[13px] leading-snug text-ink-600 transition-colors hover:text-brand-600"
-            >
-              {child.name}
-            </Link>
-          </li>
-        ))}
-        {category.children.length > 5 && (
-          <li>
-            <Link
-              href={`/products/${category.slug}`}
-              className="block py-0.5 text-[13px] font-medium text-brand-600 hover:underline"
-            >
-              +{category.children.length - 5} more
-            </Link>
-          </li>
-        )}
-      </ul>
+      {/* Categories with no subcategories fall back to naming a few of their
+          products, so the column is never a heading over an empty list. The
+          build emits `featured` only for those categories. */}
+      {category.children.length > 0 ? (
+        <ul className="mt-2 space-y-1">
+          {category.children.slice(0, 5).map((child) => (
+            <li key={child.slug}>
+              <Link
+                href={`/products/${category.slug}/${child.slug}`}
+                className="block py-0.5 text-[13px] leading-snug text-ink-600 transition-colors hover:text-brand-600"
+              >
+                {child.name}
+              </Link>
+            </li>
+          ))}
+          {category.children.length > 5 && (
+            <li>
+              <Link
+                href={`/products/${category.slug}`}
+                className="block py-0.5 text-[13px] font-medium text-brand-600 hover:underline"
+              >
+                +{category.children.length - 5} more
+              </Link>
+            </li>
+          )}
+        </ul>
+      ) : (
+        <ul className="mt-2 space-y-1">
+          {category.featured?.map((product) => (
+            <li key={product.slug}>
+              <Link
+                href={`/product/${product.slug}`}
+                className="block py-0.5 text-[13px] leading-snug text-ink-600 transition-colors hover:text-brand-600"
+              >
+                {product.name}
+              </Link>
+            </li>
+          ))}
+          {category.count > (category.featured?.length ?? 0) && (
+            <li>
+              <Link
+                href={`/products/${category.slug}`}
+                className="block py-0.5 text-[13px] font-medium text-brand-600 hover:underline"
+              >
+                +{category.count - (category.featured?.length ?? 0)} more
+              </Link>
+            </li>
+          )}
+        </ul>
+      )}
     </div>
   );
 }

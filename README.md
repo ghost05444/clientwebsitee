@@ -107,12 +107,37 @@ Currently configured:
 | `npm run mosaics`    | Bakes the blurred product-mosaic backdrop textures into public/bg/ |
 | `npm run banner`     | Imports the client's hero artwork + logo lockup into `public/banner/`    |
 | `npm run icons`      | Cuts the favicon set from the brand flame                               |
+| `npm run service-images` | Processes photography for Krushnam's own offerings into `public/media/services/` |
 | `npm run qa`         | Playwright sweep: overflow, alt text, tap targets, console errors, links |
 | `npm run ix`         | Interaction tests: drawer, search, filters, form validation              |
-| `npm run crawl`      | Requests all 919 routes, fails on any non-200                            |
+| `npm run crawl`      | Requests all 927 routes, fails on any non-200                            |
 
-`banner` and `icons` read source artwork from the client's download folder; pass
-a directory as the first argument to point them elsewhere.
+`banner`, `icons` and `service-images` read source artwork from the client's
+download folder; pass a directory as the first argument to point them elsewhere.
+
+### Krushnam's own offerings
+
+Eight of the products under **Other Products** are the client's own services and
+supply lines, not scraped catalogue items: extinguisher supply, refilling and
+hydrotest, hydrant systems, PPE supply, maintenance and inspection, safety
+signage, safety training and ceramic fibre insulation.
+
+They are declared as `CURATED` in `scripts/build-data.mjs`, **not** in
+`src/data/products.json` — that file is regenerated from `scripts/raw` on every
+build, so anything hand-edited there is destroyed by the next `npm run build`.
+Edit the copy in the transform and re-run `npm run data`.
+
+Their photography is supplied by the client rather than mirrored, so it has its
+own step. Name each file after the product's slug and run:
+
+```
+npm run service-images -- "C:/path/to/folder"
+npm run data
+```
+
+Until an image is present the product renders the standard "image not
+available" placeholder — the same self-healing rule the datasheets use, so a
+missing file never produces a broken image.
 
 `data`, `images` and `datasheets` are resumable — re-running skips work already
 done.

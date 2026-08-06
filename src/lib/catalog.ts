@@ -47,6 +47,13 @@ export type Category = {
   blurb: string | null;
   children: Category[];
   synthetic?: boolean;
+  /**
+   * A few products to show in the mega menu for categories that have no
+   * subcategories to list. Emitted by the build only where it is needed, and
+   * kept to name + slug so the header stays small — it is a client component
+   * on every page, so it must never pull in the product corpus.
+   */
+  featured?: { slug: string; name: string }[];
 };
 
 /**

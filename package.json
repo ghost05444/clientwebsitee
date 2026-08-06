@@ -16,7 +16,8 @@
     "prebuild": "node scripts/build-data.mjs && node scripts/build-mosaics.mjs",
     "mosaics": "node scripts/build-mosaics.mjs",
     "banner": "node scripts/build-banner.mjs",
-    "icons": "node scripts/build-icons.mjs"
+    "icons": "node scripts/build-icons.mjs",
+    "service-images": "node scripts/build-service-images.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.25",
