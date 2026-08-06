@@ -81,7 +81,15 @@ for (const slug of SLUGS) {
       .resize(size, size, {
         fit: "contain",
         background: { r: 255, g: 255, b: 255, alpha: 1 },
-        withoutEnlargement: true,
+        /*
+         * Deliberately NOT `withoutEnlargement`. With `contain` that flag
+         * keeps the canvas at the requested size but refuses to scale the
+         * image up, so a source smaller than the target ends up marooned in
+         * the middle of it — the 360x360 refilling photo filled 16% of its
+         * 900x900 canvas and rendered as a stamp on a white field wherever a
+         * browser picked the 900w variant. Upscaling a small source is a
+         * little soft; a tiny image in a sea of white is simply broken.
+         */
       })
       .webp({ quality: 82, effort: 6 })
       .toFile(join(OUT, `${slug}-${size}.webp`));
