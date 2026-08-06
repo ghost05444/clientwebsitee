@@ -1,7 +1,7 @@
 # Krushnam Fire — Industrial Safety & Fire Protection
 
 Product catalogue site for Krushnam Fire (Anjar, Kachchh, Gujarat). Next.js App
-Router + Tailwind v4, fully statically generated: **841 products**, 14 top-level
+Router + Tailwind v4, fully statically generated: **849 products**, 14 top-level
 categories, 57 subcategory pages.
 
 The business quotes per enquiry rather than selling online, so there is no cart
@@ -20,7 +20,7 @@ npm run datasheets  # mirror datasheet PDFs              (~770 MB, optional)
 npm run dev
 ```
 
-`npm run build` writes a fully static site to `out/` — 919 prerendered pages,
+`npm run build` writes a fully static site to `out/` — 944 prerendered pages,
 no server at runtime. To preview that build exactly as it will deploy:
 
 ```bash
@@ -32,7 +32,8 @@ npx serve out
 
 ## Deploying to Netlify
 
-Connect the repo and Netlify reads [`netlify.toml`](netlify.toml) — build
+See [DEPLOY.md](DEPLOY.md) for both deploy routes. In short: connect the repo
+and Netlify reads [`netlify.toml`](netlify.toml) — build
 command `npm run build`, publish directory `out`. Nothing else to configure.
 
 **Enquiries arrive through Netlify Forms.** The form on `/contact` carries
@@ -108,6 +109,7 @@ Currently configured:
 | `npm run banner`     | Imports the client's hero artwork + logo lockup into `public/banner/`    |
 | `npm run icons`      | Cuts the favicon set from the brand flame                               |
 | `npm run service-images` | Processes photography for Krushnam's own offerings into `public/media/services/` |
+| `npm run audit:images`   | Lists products still needing a photograph into `MISSING-IMAGES.md` |
 | `npm run qa`         | Playwright sweep: overflow, alt text, tap targets, console errors, links |
 | `npm run ix`         | Interaction tests: drawer, search, filters, form validation              |
 | `npm run crawl`      | Requests all 927 routes, fails on any non-200                            |
@@ -180,7 +182,7 @@ Re-run `npm run data` after changing any of it.
 | Head Protection               |       20 |
 | Arc Flash & Electrical Safety |       18 |
 | Hearing Protection            |       13 |
-| Other Products                |        7 |
+| Other Products                |       15 |
 
 ---
 

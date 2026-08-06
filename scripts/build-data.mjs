@@ -6,6 +6,7 @@
  *
  * Run with: npm run data
  */
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -350,6 +351,57 @@ function localImage(src) {
   return `/media/${clean}`;
 }
 
+/*
+ * The source catalogue uses a grey "No image available" graphic as the product
+ * photo where it has none — 35 products carry it. Passing that through means
+ * the card renders someone else's broken-image artwork, which reads as a bug
+ * rather than as a product awaiting photography. Dropping it lets the site's
+ * own placeholder show instead: consistent styling, and a proper
+ * "image not available" label for screen readers.
+ *
+ * Matched by content hash, not filename, because the same graphic is uploaded
+ * under two different names and could be uploaded under more. To add another,
+ * run: md5sum public/media/<path>-900.webp
+ *
+ * Verified before enabling: all 35 occurrences are a product's ONLY image, so
+ * nothing here can strip a real photograph.
+ */
+const PLACEHOLDER_HASHES = new Set([
+  "80bbc4aa9be503ea9eaf8a2eac87bf9e", // WhatsApp-Image-...-4.webp
+  "4dfe85867d97c84cba1d74facf04f05d", // WhatsApp-Image-...-4-247x247-1.webp
+]);
+
+/*
+ * The same graphic by path. This list is what makes the check survive its own
+ * success: once these files are deleted from public/media there is nothing
+ * left to hash, so a hash-only test would quietly decide they are ordinary
+ * photos and hand every one of the 35 products back an image whose file no
+ * longer exists — a broken image on each of them.
+ */
+const PLACEHOLDER_PATHS = new Set([
+  "/media/2020/02/WhatsApp-Image-2024-06-17-at-16.46.03_970cdf4f-4.webp",
+  "/media/2024/07/WhatsApp-Image-2024-06-17-at-16.46.03_970cdf4f-4-247x247-1.webp",
+]);
+
+let placeholdersDropped = 0;
+
+/** Hashes are computed once per file, not once per product that uses it. */
+const hashCache = new Map();
+
+function isPlaceholderImage(src) {
+  if (PLACEHOLDER_PATHS.has(src)) return true;
+  if (hashCache.has(src)) return hashCache.get(src);
+  const file = join(__dirname, "..", "public", src.replace(/\.webp$/, "-900.webp"));
+  let hit = false;
+  if (existsSync(file)) {
+    hit = PLACEHOLDER_HASHES.has(
+      createHash("md5").update(readFileSync(file)).digest("hex"),
+    );
+  }
+  hashCache.set(src, hit);
+  return hit;
+}
+
 const products = [];
 const seenSlug = new Set();
 
@@ -397,6 +449,10 @@ for (const p of rawProducts) {
     .map((i) => {
       const src = localImage(i.src);
       if (!src) return null;
+      if (isPlaceholderImage(src)) {
+        placeholdersDropped++;
+        return null;
+      }
       const rawAlt = scrubBrand(decodeEntities(i.alt || "").trim());
       return {
         src,
@@ -886,6 +942,7 @@ const withSummary = products.filter((p) => p.summary.length > 30).length;
 
 console.log(`products          ${products.length}`);
 console.log(`  with image      ${withImg}`);
+console.log(`  awaiting photo  ${products.length - withImg} (${placeholdersDropped} were the source's "No image available" graphic)`);
 console.log(`  with summary    ${withSummary}`);
 console.log(`  with specs      ${withSpec}`);
 console.log(`  with standards  ${withStd}`);
