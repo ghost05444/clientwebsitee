@@ -1,0 +1,79 @@
+# Netlify response headers.
+#
+# This lives in public/ so Next copies it to out/_headers, which means it
+# travels WITH the built site. netlify.toml sits at the repo root and is only
+# read when Netlify runs the build itself — so a drag-and-drop deploy of the
+# out/ folder would silently ship with no CSP, no HSTS and no caching at all.
+# Keeping the rules here covers both ways of deploying, so this file is the
+# single source of truth and netlify.toml carries only build settings.
+#
+# Syntax: a path pattern on its own line, then indented "Key: value" lines.
+# Netlify applies every matching block, so /* sets the baseline and the
+# path-specific blocks below override Cache-Control for their own assets.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Nothing here needs a camera, microphone, location or payment API. Denying
+  # them means a future dependency cannot quietly start asking.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()
+
+  # Two years, subdomains included. Only meaningful once the custom domain is
+  # live and serving HTTPS everywhere — Netlify does that by default.
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+  # Content-Security-Policy, scoped to what the site actually loads:
+  #
+  #   default 'none'  deny by default, then allow only what is needed
+  #   script  'self' + 'unsafe-inline'
+  #                   Next inlines its bootstrap and the JSON-LD blocks. A
+  #                   nonce is the better answer but is impossible on a static
+  #                   export — there is no server to mint one per request. The
+  #                   JSON-LD is escaped at the source instead (see
+  #                   src/lib/jsonLd.ts), which is what actually closes the
+  #                   injection path here.
+  #   style   'self' + 'unsafe-inline'
+  #                   Tailwind ships a stylesheet, but Next and a handful of
+  #                   components set inline style attributes.
+  #   img     'self' + data: (inline SVG noise texture) + blob:
+  #   font    'self'  next/font self-hosts; nothing is fetched from Google.
+  #   connect 'self'  the search index fetch and the Netlify Forms POST.
+  #   frame   the Maps embed on /contact, and nothing else.
+  #   form-action 'self'
+  #                   Netlify Forms posts back to the same origin. This stops
+  #                   an injected form from exfiltrating to a third party.
+  #   frame-ancestors 'none'
+  #                   Replaces X-Frame-Options, which CSP supersedes.
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com; form-action 'self'; base-uri 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Product images keep their catalogue filename, and BRANDED-IMAGES.md tells
+# whoever sources replacement photography to overwrite them in place. So the
+# URL does NOT identify the bytes, and `immutable` would be a false promise:
+# browsers honour it without revalidating even on reload, so a replaced photo
+# would stay invisible to every returning visitor. Cache for a day, then serve
+# stale while revalidating in the background — fast, and replacements land.
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+# The mosaic textures are regenerated in place by `npm run mosaics`, so they
+# revalidate like /media rather than claiming immutability they cannot honour.
+/bg/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
+
+# Banner artwork carries a content hash in its filename (see
+# scripts/build-banner.mjs), so the URL really does identify the bytes and
+# `immutable` is truthful — new artwork gets a new URL and reaches everyone.
+/banner/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Next content-hashes its own bundles, so these are genuinely immutable.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/datasheets/*
+  Cache-Control: public, max-age=604800
+
+# Regenerated on every catalogue build; revalidate daily.
+/search-index.json
+  Cache-Control: public, max-age=86400
