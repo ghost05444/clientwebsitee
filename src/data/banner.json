@@ -1,0 +1,20 @@
+{
+  "sceneLandscape": {
+    "1280": "/banner/scene-landscape-1280.e7f04cfa.webp",
+    "1920": "/banner/scene-landscape-1920.4b7ba927.webp",
+    "2560": "/banner/scene-landscape-2560.cfc8a7cf.webp"
+  },
+  "scenePortrait": {
+    "640": "/banner/scene-portrait-640.b1e5def0.webp",
+    "900": "/banner/scene-portrait-900.43ce73f8.webp",
+    "1200": "/banner/scene-portrait-1200.24ede9ea.webp"
+  },
+  "logoLockup": {
+    "420": "/banner/logo-lockup-420.cf7807b0.png",
+    "700": "/banner/logo-lockup-700.78a5e65f.png"
+  },
+  "logoIntrinsic": {
+    "width": 700,
+    "height": 259
+  }
+}

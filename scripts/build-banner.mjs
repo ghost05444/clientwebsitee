@@ -14,26 +14,44 @@
  * The logo itself is genuinely graphical — a custom wordmark, swoosh and
  * mascot — so it stays an image, cropped out of the original artwork.
  *
+ * ── Why the filenames carry a content hash ───────────────────────────────
+ * netlify.toml serves /banner/* with `max-age=31536000, immutable`. That is
+ * only a truthful claim about a URL whose content can never change, and
+ * `immutable` means browsers will not revalidate even on reload. Emitting
+ * these under stable names broke exactly that promise: a corrected logo
+ * deployed to the same URL stayed invisible to anyone who had already loaded
+ * the old one, with no way to push the new file to them.
+ *
+ * Hashing the bytes into the filename makes the URL change whenever the
+ * artwork does, so `immutable` becomes true and a fix reaches everyone on
+ * their next visit. `src/data/banner.json` maps the logical names to the
+ * hashed files for the component to import.
+ *
  * Run with: npm run banner
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT = join(__dirname, "..", "public", "banner");
+const ROOT = join(__dirname, "..");
+const OUT = join(ROOT, "public", "banner");
+const MANIFEST = join(ROOT, "src", "data", "banner.json");
 const SRC_DIR = process.argv[2] || "C:/Users/rahul/Downloads";
 mkdirSync(OUT, { recursive: true });
 
 /** Text-free scene renders. */
 const SCENES = [
   {
+    key: "sceneLandscape",
     name: "scene-landscape",
     file: "c3b113b4-50dc-47ac-ad03-de01d93046c3.png",
     widths: [1280, 1920, 2560],
   },
   {
+    key: "scenePortrait",
     name: "scene-portrait",
     file: "613ce9ca-e975-4cfb-a09e-2848522812d4.png",
     widths: [640, 900, 1200],
@@ -57,12 +75,33 @@ const SCENES = [
  * extra margin drags the top of that lettering into the lockup.
  */
 const LOGO = {
+  key: "logoLockup",
+  name: "logo-lockup",
   file: "592556fd-1eb0-4db0-a636-25a940eb8e90.png",
   extract: { left: 7, top: 47, width: 953, height: 352 },
   widths: [420, 700],
 };
 
-const meta = {};
+/** First 8 hex of the sha256 — plenty to separate revisions of one asset. */
+const hash = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 8);
+
+/**
+ * Writes `name-width.hash.ext` and returns the public path.
+ * Any previous revision of the same logical asset is deleted, so old hashed
+ * files do not pile up in public/ and ship on every deploy.
+ */
+function emit(name, width, ext, buf) {
+  const prefix = `${name}-${width}.`;
+  const suffix = `.${ext}`;
+  for (const f of readdirSync(OUT)) {
+    if (f.startsWith(prefix) && f.endsWith(suffix)) unlinkSync(join(OUT, f));
+  }
+  const file = `${prefix}${hash(buf)}${suffix}`;
+  writeFileSync(join(OUT, file), buf);
+  return `/banner/${file}`;
+}
+
+const manifest = {};
 
 for (const scene of SCENES) {
   const src = join(SRC_DIR, scene.file);
@@ -72,14 +111,16 @@ for (const scene of SCENES) {
   }
 
   const info = await sharp(src).metadata();
+  manifest[scene.key] = {};
+
   for (const w of scene.widths) {
-    await sharp(src)
+    const buf = await sharp(src)
       .resize({ width: Math.min(w, info.width ?? w), withoutEnlargement: true })
       .webp({ quality: 82, effort: 6 })
-      .toFile(join(OUT, `${scene.name}-${w}.webp`));
+      .toBuffer();
+    manifest[scene.key][w] = emit(scene.name, w, "webp", buf);
   }
 
-  meta[scene.name] = { width: info.width, height: info.height, widths: scene.widths };
   console.log(`✓ ${scene.name.padEnd(18)} ${info.width}x${info.height}`);
 }
 
@@ -94,11 +135,10 @@ for (const scene of SCENES) {
      * and `opacity` creates a stacking context that isolates the blend.
      *
      * So the transparency is baked in here instead: luminance becomes the
-     * alpha channel, which is what `screen` would have computed anyway. Black
-     * plate goes fully transparent, the red and white stay solid, and the
-     * mascot's soft edges and the flame's glow keep their natural falloff
-     * rather than being hard-cut by a threshold.
+     * alpha channel, which is what `screen` would have computed anyway.
      */
+    manifest[LOGO.key] = {};
+
     for (const w of LOGO.widths) {
       const base = sharp(src).extract(LOGO.extract).resize({ width: w });
 
@@ -122,17 +162,22 @@ for (const scene of SCENES) {
         .linear(4.64, -162)
         .toBuffer();
 
-      await sharp(rgb)
+      const buf = await sharp(rgb)
         .joinChannel(alpha)
         .png({ compressionLevel: 9 })
-        .toFile(join(OUT, `logo-lockup-${w}.png`));
+        .toBuffer();
+
+      manifest[LOGO.key][w] = emit(LOGO.name, w, "png", buf);
     }
-    meta.logoLockup = { ...LOGO.extract, widths: LOGO.widths };
-    console.log(`✓ logo-lockup       ${LOGO.extract.width}x${LOGO.extract.height}`);
+
+    const meta = await sharp(join(OUT, manifest[LOGO.key][700].split("/").pop())).metadata();
+    manifest.logoIntrinsic = { width: meta.width, height: meta.height };
+    console.log(`✓ logo-lockup       ${meta.width}x${meta.height}`);
   } else {
     console.log(`✗ logo lockup — source not found`);
   }
 }
 
-writeFileSync(join(OUT, "meta.json"), JSON.stringify(meta, null, 2));
-console.log("\nHero assets written to public/banner/");
+writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + "\n");
+console.log(`\nHero assets written to public/banner/`);
+console.log(`Manifest: src/data/banner.json`);

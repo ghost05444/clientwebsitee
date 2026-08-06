@@ -1,3 +1,4 @@
+import banner from "@/data/banner.json";
 import { site } from "@/lib/site";
 
 /**
@@ -24,10 +25,21 @@ import { site } from "@/lib/site";
  * 45%, the landscape one reserves a full-height column on the left.
  */
 
-const SCENE_LANDSCAPE =
-  "/banner/scene-landscape-1280.webp 1280w, /banner/scene-landscape-1920.webp 1920w, /banner/scene-landscape-2560.webp 2560w";
-const SCENE_PORTRAIT =
-  "/banner/scene-portrait-640.webp 640w, /banner/scene-portrait-900.webp 900w, /banner/scene-portrait-1200.webp 1200w";
+/*
+ * Paths come from the build manifest rather than being written out here,
+ * because the filenames carry a content hash. /banner/* is served
+ * `immutable`, which is only honest if the URL changes when the artwork does
+ * — hardcoding stable names once left a corrected logo permanently invisible
+ * to anyone who had already cached the old one. See scripts/build-banner.mjs.
+ */
+const srcSet = (set: Record<string, string>) =>
+  Object.entries(set)
+    .map(([w, path]) => `${path} ${w}w`)
+    .join(", ");
+
+const SCENE_LANDSCAPE = srcSet(banner.sceneLandscape);
+const SCENE_PORTRAIT = srcSet(banner.scenePortrait);
+const LOGO_SRCSET = srcSet(banner.logoLockup);
 
 /** Trust markers, matching the client's original artwork. */
 const FEATURES = [
@@ -70,7 +82,7 @@ export function HeroBanner() {
         <picture>
           <source media="(min-width: 768px)" srcSet={SCENE_LANDSCAPE} sizes="100vw" />
           <img
-            src="/banner/scene-portrait-900.webp"
+            src={banner.scenePortrait["900"]}
             srcSet={SCENE_PORTRAIT}
             sizes="100vw"
             alt=""
@@ -109,12 +121,12 @@ export function HeroBanner() {
                   the lettering is pixels. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/banner/logo-lockup-700.png"
-                srcSet="/banner/logo-lockup-420.png 420w, /banner/logo-lockup-700.png 700w"
+                src={banner.logoLockup["700"]}
+                srcSet={LOGO_SRCSET}
                 sizes="(min-width: 768px) 34vw, 70vw"
                 alt={`${site.name} — Fire Safety & Control Service`}
-                width={953}
-                height={352}
+                width={banner.logoIntrinsic.width}
+                height={banner.logoIntrinsic.height}
                 loading="eager"
                 decoding="sync"
                 fetchPriority="high"

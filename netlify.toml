@@ -5,14 +5,18 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Product images and datasheets are content-addressed by filename and only
-# change when the catalogue is rebuilt, so they can cache hard.
+# Product images keep their catalogue filename, and BRANDED-IMAGES.md tells
+# whoever sources replacement photography to overwrite them in place. So the
+# URL does NOT identify the bytes, and `immutable` would be a false promise:
+# browsers honour it without revalidating even on reload, so a replaced photo
+# would stay invisible to every returning visitor. Cache for a day, then serve
+# stale while revalidating in the background — fast, and replacements land.
 # (Images live under /media, not /products, so they never shadow the
 # /products/* page routes.)
 [[headers]]
   for = "/media/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
 
 [[headers]]
   for = "/datasheets/*"
@@ -30,16 +34,21 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# Banner artwork and icons are equally stable.
+# Banner artwork carries a content hash in its filename (see
+# scripts/build-banner.mjs), so the URL really does identify the bytes and
+# `immutable` is truthful — a new render gets a new URL and reaches everyone.
 [[headers]]
   for = "/banner/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# The mosaic textures keep stable names and are regenerated in place by
+# `npm run mosaics`, so they revalidate like /media rather than claiming
+# immutability they cannot honour.
 [[headers]]
   for = "/bg/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=2592000"
 
 [[headers]]
   for = "/*"
