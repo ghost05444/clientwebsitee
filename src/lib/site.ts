@@ -6,7 +6,7 @@
 
 export const site = {
   name: "Krushnam Fire",
-  legalName: "Krushnam Fire & Safety",
+  legalName: "Krushnam Fire & Safety Service",
   tagline: "Industrial Safety & Fire Protection Equipment",
   description:
     "Supplier of certified industrial safety and fire protection equipment — helmets, eye and face protection, gloves, safety footwear, fall protection, respiratory protection and workplace safety systems.",
