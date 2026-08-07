@@ -18,10 +18,24 @@ import { site } from "@/lib/site";
 export function Logo({
   className = "",
   variant = "dark",
+  taglineOnMobile = false,
 }: {
   className?: string;
   /** `light` = for placing on a dark background. */
   variant?: "dark" | "light";
+  /**
+   * Show the tagline below 640px too.
+   *
+   * Off by default because the header cannot take it: the line is 185px, and
+   * on a 375px viewport that pushes the search, call and menu buttons 18px
+   * past the right edge on every page. `overflow-x: clip` hides the scrollbar
+   * so it looks fine, which is exactly what makes it easy to ship by mistake —
+   * the controls are simply off screen.
+   *
+   * The footer has no such constraint: the brand sits alone in a full-width
+   * column, so it opts in and the tagline reads on a phone as well.
+   */
+  taglineOnMobile?: boolean;
 }) {
   const isLight = variant === "light";
 
@@ -45,11 +59,11 @@ export function Logo({
         </span>
 
         <span
-          className={`mt-[3px] hidden text-[9px] font-medium uppercase tracking-[0.13em] sm:block ${
-            isLight ? "text-ink-400" : "text-ink-500"
-          }`}
+          className={`mt-[3px] text-[9px] font-medium uppercase tracking-[0.13em] sm:block ${
+            taglineOnMobile ? "block" : "hidden"
+          } ${isLight ? "text-ink-400" : "text-ink-500"}`}
         >
-          Fire Safety &amp; Control
+          Fire Safety &amp; Control Service
         </span>
       </span>
 

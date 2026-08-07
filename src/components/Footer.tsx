@@ -25,7 +25,7 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Brand + contact */}
           <div className="lg:col-span-4">
-            <Logo variant="light" />
+            <Logo variant="light" taglineOnMobile />
 
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-400">
               Supplier of certified industrial safety and fire protection
