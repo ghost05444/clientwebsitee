@@ -1,0 +1,47 @@
+{
+  // Cloudflare Workers deployment config.
+  //
+  // WHY THIS FILE EXISTS
+  //
+  // Without it, `wrangler deploy` auto-detects "Next.js", assumes a
+  // server-rendered app, and runs the OpenNext Cloudflare adapter. That build
+  // then fails with:
+  //
+  //   ENOENT: .next/standalone/.next/server/pages-manifest.json
+  //
+  // because this site is a pure static export (`output: "export"` in
+  // next.config.ts). There is no server bundle and no `.next/standalone`
+  // directory for OpenNext to wrap — every one of the 944 routes is already
+  // prerendered to HTML in `out/`.
+  //
+  // With this config present, wrangler skips auto-detection and simply uploads
+  // `out/` as static assets. No adapter, no server, no OpenNext.
+  //
+  // If you would rather not use Workers at all, Cloudflare Pages serves this
+  // build with no config file whatsoever — see DEPLOY.md.
+
+  // No "$schema" key: it would point into node_modules/wrangler, and wrangler
+  // is not a dependency of this project — it is fetched by `npx` at deploy
+  // time. The reference would dangle in every editor that opened this file.
+
+  // Must match the Worker in your Cloudflare dashboard, or a new one is
+  // created under this name instead of updating the existing deployment.
+  "name": "krushanm-demo",
+
+  "compatibility_date": "2026-08-16",
+
+  "assets": {
+    // The static export. `npm run build` writes it; nothing else is needed.
+    "directory": "./out",
+
+    // The build emits /contact/index.html rather than /contact.html
+    // (`trailingSlash: true`), so directory-style URLs must resolve to their
+    // index file. This is wrangler's default, set explicitly because the
+    // site's URLs depend on it.
+    "html_handling": "auto-trailing-slash",
+
+    // Serve out/404.html with a real 404 status for unknown paths, rather
+    // than a bare Cloudflare error page.
+    "not_found_handling": "404-page"
+  }
+}

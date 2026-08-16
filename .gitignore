@@ -48,3 +48,6 @@ next-env.d.ts
 # QA artefacts
 /scripts/qa-shots/
 /scripts/qa-report.txt
+
+# Wrangler local state (Cloudflare deploys)
+/.wrangler/
