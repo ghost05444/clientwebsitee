@@ -1,190 +1,216 @@
-# Deploying
+# How to put this website online
 
-The site is a **static export**: `npm run build` writes 944 prerendered HTML
-pages into `out/`, and that folder is the entire website. There is no server,
-no database and no environment variables to set.
+This website is just a folder of ready-made pages. There is no server to run,
+no database to set up, and no passwords or API keys to enter.
 
-That one fact decides everything below. Any host that can serve a folder will
-serve this site. What does *not* work is pointing a Next.js **server** adapter
-at it — there is no server build for an adapter to wrap (see
-"If a Cloudflare build fails" at the end).
+You only need to do two things:
 
-Security headers and caching rules live in `public/_headers`, which the build
-copies to `out/_headers`. Netlify and Cloudflare both read that file, so the
-headers travel with the site whichever route you pick.
+1. Build the site — this creates a folder called `out`
+2. Upload that `out` folder to a hosting service
+
+Pick **one** of the options below. Cloudflare is what you are using now, so
+start there.
 
 ---
 
-## Option A — drag and drop (no tools needed)
+## Option 1 — Cloudflare Workers (what you are using)
 
-1. Go to https://app.netlify.com/drop
-2. Drag the **`out`** folder onto the page.
+Everything is already set up in the project. In your Cloudflare dashboard,
+open your Worker and go to **Settings → Build**, then use exactly this:
 
-That is the whole process. The site is live on a `*.netlify.app` address
-straight away.
+| Setting | What to put |
+| --- | --- |
+| Build command | **leave this empty** |
+| Deploy command | `npx wrangler deploy` |
 
-To use a custom domain: **Site configuration → Domain management → Add a
-domain**. Netlify issues the HTTPS certificate automatically.
+Then click **Retry deployment** (or push any change to GitHub).
 
-To update later, drag the `out` folder onto the same site's **Deploys** tab.
+That's it. The site builds and goes live on its own.
 
-## Option B — connect the Git repository (Netlify)
+### One thing you must check
 
-1. **Add new site → Import an existing project**, and pick the repository.
-2. Leave the build settings alone — `netlify.toml` already sets them
-   (`npm run build`, publish `out`, Node 22).
+Open the file `wrangler.jsonc` in the project. Near the top there is a line:
 
-Every push to `main` then rebuilds and redeploys automatically.
+```
+"name": "krushanm-web",
+```
+
+This name **must be exactly the same** as your Worker name in Cloudflare. You
+can see your Worker name at the top of the dashboard page
+(**Workers & Pages → your worker**).
+
+If the two names are different, Cloudflare will say the deploy worked, but
+your website will not change — because it was sent to a different place.
+Just edit that line to match and save.
 
 ---
 
-## Option C — Cloudflare
+## Option 2 — Cloudflare Pages
 
-Both Cloudflare routes work. **Pages is the simpler one** and needs no config
-file at all.
+If you prefer Pages instead of Workers:
 
-### C1. Cloudflare Pages (recommended)
+**Workers & Pages → Create → Pages → Connect to Git**, then:
 
-**Workers & Pages → Create → Pages → Connect to Git**, then set:
-
-| Setting | Value |
+| Setting | What to put |
 | --- | --- |
 | Framework preset | **None** |
 | Build command | `npm run build` |
 | Build output directory | `out` |
 
-Framework preset must be **None**. Choosing "Next.js" makes Cloudflare run the
-server adapter, which cannot work here — see the failure note below.
+> ⚠️ Framework preset must be **None**.
+> If you pick "Next.js", the deploy will fail. See *Common errors* below.
 
-Pages reads `out/_headers` natively, so the security headers and caching apply
-with nothing further to configure.
+---
 
-### C2. Cloudflare Workers
+## Option 3 — Netlify (easiest of all)
 
-`wrangler.jsonc` in the repo root describes everything: build the site, upload
-`out/` as static assets, resolve directory URLs to their `index.html`, and
-serve `out/404.html` for unknown paths.
+### The quick way — no tools needed
 
-**Settings → Build** needs only this:
+1. Go to https://app.netlify.com/drop
+2. Drag the **`out`** folder onto the page
 
-| Setting | Value |
-| --- | --- |
-| Build command | *(leave empty)* |
-| Deploy command | `npx wrangler deploy` |
+Done. The site is live straight away.
 
-The build command is deliberately empty. `wrangler.jsonc` runs `npm run build`
-itself, so the deploy works whether or not that field is filled in. Filling it
-in as well is harmless — the site just gets built twice, which only costs
-time.
+To update it later, drag the `out` folder onto the same site's **Deploys** tab.
 
-**One thing you must check:** `"name"` in `wrangler.jsonc` has to match the
-Worker name in your dashboard (**Workers & Pages → \<name\>**). It is
-currently `krushanm-web`. wrangler deploys to the name written in the file,
-not to the Worker the build is attached to — if the two differ, the deploy
-lands on a different Worker and the site you are watching never changes.
+### Or connect GitHub
 
-### If the deploy fails with `assets.directory ... does not exist`
+**Add new site → Import an existing project** → pick the repository → click
+Deploy. Everything is already configured in `netlify.toml`. Every time you
+push to GitHub, the site updates automatically.
 
-```
-✘ [ERROR] The directory specified by the "assets.directory" field in your
-  configuration file does not exist:
-  /opt/buildhome/repo/out
+---
+
+## Building it yourself (only if you need the `out` folder on your computer)
+
+You need Node.js 22 or newer installed. Then, inside the project folder:
+
+```bash
+npm install      # first time only — downloads what the project needs
+npm run build    # creates the "out" folder
 ```
 
-This means the site was never built, so there was nothing to upload. Check the
-log for a line reading `Executing user build command` — if it is missing, no
-build ran.
+The `out` folder is now the complete website. That is the folder you drag onto
+Netlify, or that Cloudflare uploads for you.
 
-Deploys from before the build hook was added to `wrangler.jsonc` need a Build
-command of `npm run build`. With the current file, the build runs as part of
-`wrangler deploy` and the field can be left empty.
+---
 
-### If a Cloudflare build fails with `pages-manifest.json`
+## After it is live — a quick check
+
+Open your website and click around a few pages. Also check these two things:
+
+1. **Go to a page that does not exist**, for example `yoursite.com/hello123` —
+   you should see the site's own "page not found" page, not a Cloudflare
+   error page.
+
+2. **Send one test enquiry** through the contact form, and see what happens.
+   The next section explains what you should expect.
+
+---
+
+## Important: the contact form
+
+The contact form was built for **Netlify**. This is the only part of the
+website that behaves differently depending on where you host it.
+
+**If you host on Netlify** — the form works with no setup. Messages appear in
+your Netlify dashboard under **Forms**.
+
+To also get them by email: **Forms → Form notifications → Add notification →
+Email notification**. Do this, otherwise you have to remember to log in and
+check.
+
+**If you host on Cloudflare** — the form will show this message when someone
+submits it:
+
+> Something went wrong sending that. Please try WhatsApp below, or email
+> support@krushnamfire.in
+
+Nothing is broken and no customer is lost — they are pointed to WhatsApp and
+email instead, and WhatsApp is the main button everywhere on the site anyway.
+But the form itself will not collect anything.
+
+**So, choose:**
+
+- Want the form to collect messages? → host on **Netlify**
+- Happy with WhatsApp, phone and email? → **Cloudflare is fine**
+- Want the form working on Cloudflare? → ask your developer; it is a small
+  change (about 15 minutes) to point the form at a free form service
+
+---
+
+## Before you connect your real domain name
+
+Open the file `src/lib/site.ts`. Near the top you will see:
+
+```
+url: "https://krushnamfire.in",
+```
+
+If your real website address is different, change it here and build again.
+
+This is only used by Google and other search engines to know your correct
+address. The website works fine either way — but search results will point to
+the wrong address if this is left incorrect.
+
+---
+
+## Product datasheet PDFs
+
+Some products can have a PDF datasheet to download. These PDFs are about
+770 MB in total and are **not included** in the project.
+
+Nothing looks broken without them — products that have no PDF simply do not
+show a download button.
+
+If you want them later, ask your developer to run `npm run datasheets`.
+
+---
+
+## Common errors and what they mean
+
+### "pages-manifest.json ... does not exist"
 
 ```
 Error: ENOENT: no such file or directory, open
   '.next/standalone/.next/server/pages-manifest.json'
 ```
 
-This means Cloudflare decided the site is a server-rendered Next.js app and
-ran the **OpenNext adapter** on it. OpenNext wraps a Next.js *server* build.
-This site has no server build — `output: "export"` in `next.config.ts` emits
-plain HTML — so `.next/standalone` never exists and the adapter stops there.
+**Meaning:** Cloudflare thinks this is a different kind of Next.js website and
+is trying to build it the wrong way.
 
-The site build itself is fine; the log will show `944/944` pages generated
-just before the error. Only the deploy step fails.
+**Fix:**
+- On **Pages** — set Framework preset to **None**
+- On **Workers** — make sure the file `wrangler.jsonc` exists in the project
 
-Two ways it gets triggered, and the fix for each:
+### "assets.directory ... does not exist"
 
-- **Pages:** framework preset set to "Next.js". Set it to **None**, output
-  directory `out`.
-- **Workers:** `wrangler.jsonc` missing, so `wrangler deploy` auto-detects the
-  framework. Keeping that file in the repo root prevents it.
-
----
-
-## Enquiry form — read this if you deploy to Cloudflare
-
-The contact form posts to **Netlify Forms**. That is a Netlify feature, and it
-is the one thing on this site that behaves differently depending on where it
-is hosted.
-
-**On Netlify** it works with no backend and nothing to configure. Submissions
-appear under **Forms** in the dashboard. Turn on email alerts at **Forms →
-Form notifications → Add notification → Email notification**, so enquiries
-reach an inbox instead of only the dashboard.
-
-**On Cloudflare** (or any other static host) there is nothing to receive that
-POST, so submitting the form shows:
-
-> Something went wrong sending that. Please try WhatsApp below, or email
-> support@krushnamfire.in
-
-Nothing breaks and no enquiry is silently lost — the visitor is pointed at
-WhatsApp and email, which is how this trade mostly buys anyway, and WhatsApp
-is the primary call to action everywhere else on the site. But the form itself
-will not collect anything.
-
-If you want a working form on Cloudflare, the least-effort option is a hosted
-form endpoint (Formspree, Web3Forms and similar all give you a POST URL).
-Point `fetch("/")` in `src/components/EnquiryForm.tsx` at that URL and rebuild.
-
-**Either way, send one test enquiry after the first deploy** and confirm what
-happens — that tells you in ten seconds which of the two behaviours you have.
-
-## Product datasheet PDFs
-
-Datasheet download buttons appear only on products whose PDF is present, so
-nothing is broken without them — those products simply have no datasheet
-link. The PDFs are roughly 770 MB and are not included.
-
-To add them later, run `npm run datasheets` and redeploy, or host them
-elsewhere and repoint the links.
-
-## Before pointing a real domain at it
-
-Open `src/lib/site.ts` and check the `url` field near the top. It is
-currently `https://krushnamfire.in` and feeds the canonical tags, sitemap and
-search-engine structured data. If the live domain differs, change it there
-and rebuild — otherwise search engines are told the wrong address.
-
-This only matters for SEO. The site itself works either way.
-
----
-
-## After the first deploy — a 30-second check
-
-```bash
-# 1. Security headers are being applied (expect a Content-Security-Policy line)
-curl -sI https://YOUR-DOMAIN/ | grep -i "content-security-policy"
-
-# 2. A deep page and a product image both resolve (expect 200 twice)
-curl -s -o /dev/null -w "%{http_code}\n" https://YOUR-DOMAIN/products/head-protection/
-curl -s -o /dev/null -w "%{http_code}\n" https://YOUR-DOMAIN/media/2020/01/Vista-900.webp
-
-# 3. An unknown path returns a real 404, not a 200
-curl -s -o /dev/null -w "%{http_code}\n" https://YOUR-DOMAIN/no-such-page/
+```
+✘ The directory specified by the "assets.directory" field in your
+  configuration file does not exist: /opt/buildhome/repo/out
 ```
 
-If step 1 comes back empty, the host is not reading `out/_headers`. The site
-works, but without CSP and cache rules — worth fixing before launch.
+**Meaning:** the website was never built, so there was nothing to upload.
+
+**Fix:** make sure you are using the latest version of the project from
+GitHub. The current `wrangler.jsonc` builds the site automatically. If it
+still happens, set the **Build command** to `npm run build`.
+
+### The deploy says it worked, but the website did not change
+
+**Meaning:** it was probably sent to a different Worker.
+
+**Fix:** check that `"name"` in `wrangler.jsonc` matches your Worker name in
+Cloudflare exactly.
+
+---
+
+## Quick summary
+
+| | |
+| --- | --- |
+| Website type | Static — just files, no server |
+| Build command | `npm run build` |
+| Folder to upload | `out` |
+| Passwords / API keys needed | None |
+| Contact form works on | Netlify only |
