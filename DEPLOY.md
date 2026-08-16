@@ -61,19 +61,43 @@ with nothing further to configure.
 
 ### C2. Cloudflare Workers
 
-If you are deploying with `npx wrangler deploy`, `wrangler.jsonc` in the repo
-root already describes the site: upload `out/` as static assets, resolve
-directory URLs to their `index.html`, and serve `out/404.html` for unknown
-paths.
+`wrangler.jsonc` in the repo root describes everything: build the site, upload
+`out/` as static assets, resolve directory URLs to their `index.html`, and
+serve `out/404.html` for unknown paths.
+
+**Settings → Build** needs only this:
 
 | Setting | Value |
 | --- | --- |
-| Build command | `npm run build` |
+| Build command | *(leave empty)* |
 | Deploy command | `npx wrangler deploy` |
 
-Change `"name"` in `wrangler.jsonc` to match the Worker in your dashboard —
-otherwise a new Worker is created under that name instead of updating the
-existing one.
+The build command is deliberately empty. `wrangler.jsonc` runs `npm run build`
+itself, so the deploy works whether or not that field is filled in. Filling it
+in as well is harmless — the site just gets built twice, which only costs
+time.
+
+**One thing you must check:** `"name"` in `wrangler.jsonc` has to match the
+Worker name in your dashboard (**Workers & Pages → \<name\>**). It is
+currently `krushanm-web`. wrangler deploys to the name written in the file,
+not to the Worker the build is attached to — if the two differ, the deploy
+lands on a different Worker and the site you are watching never changes.
+
+### If the deploy fails with `assets.directory ... does not exist`
+
+```
+✘ [ERROR] The directory specified by the "assets.directory" field in your
+  configuration file does not exist:
+  /opt/buildhome/repo/out
+```
+
+This means the site was never built, so there was nothing to upload. Check the
+log for a line reading `Executing user build command` — if it is missing, no
+build ran.
+
+Deploys from before the build hook was added to `wrangler.jsonc` need a Build
+command of `npm run build`. With the current file, the build runs as part of
+`wrangler deploy` and the field can be left empty.
 
 ### If a Cloudflare build fails with `pages-manifest.json`
 

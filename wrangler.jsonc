@@ -24,11 +24,30 @@
   // is not a dependency of this project — it is fetched by `npx` at deploy
   // time. The reference would dangle in every editor that opened this file.
 
-  // Must match the Worker in your Cloudflare dashboard, or a new one is
-  // created under this name instead of updating the existing deployment.
-  "name": "krushanm-demo",
+  // ⚠ MUST match the Worker name in your Cloudflare dashboard.
+  //
+  // wrangler deploys to the name written here, not to the Worker the build is
+  // attached to. If they differ, the deploy quietly lands on a different
+  // Worker (creating it if needed) and the site you are looking at never
+  // changes. The name is shown in the dashboard at
+  // Workers & Pages → <name>, and in the build URL.
+  "name": "krushanm-web",
 
   "compatibility_date": "2026-08-16",
+
+  // Build the site before deploying it.
+  //
+  // Cloudflare's Workers Builds runs an optional "Build command" and then a
+  // "Deploy command". Leaving the build field empty is easy to do and gives a
+  // confusing failure — wrangler reports that ./out does not exist, which
+  // looks like a broken config rather than a build that never ran.
+  //
+  // Running the build from here removes that dependency: `wrangler deploy`
+  // produces `out/` itself, so the deploy works whether or not a build
+  // command is configured in the dashboard.
+  "build": {
+    "command": "npm run build"
+  },
 
   "assets": {
     // The static export. `npm run build` writes it; nothing else is needed.
